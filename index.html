@@ -380,54 +380,95 @@ a{color:inherit;text-decoration:none}
 .field-row.date-row .dp-trigger:not(.has-value) .dp-trigger-text{font-size:12px;font-weight:400;color:var(--text-3)}
 .field-row.date-row .dp-trigger-clear{position:absolute;top:6px;right:6px}
 
+/* ============================================================
+   FULL-SCREEN DATE PICKER  (mobile only, shown via JS)
+============================================================ */
+.dp-fullscreen{
+  position:fixed;inset:0;z-index:9500;
+  background:var(--surface);
+  display:flex;flex-direction:column;
+  animation:dpFsIn .18s ease;
+}
+@keyframes dpFsIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.dp-fs-header{
+  display:flex;align-items:center;justify-content:center;
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  position:relative;flex-shrink:0;
+}
+.dp-fs-title{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.dp-fs-close{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  background:var(--surface-3);border:none;
+  width:34px;height:34px;border-radius:50%;
+  font-size:20px;cursor:pointer;color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.dp-fs-wd-row{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  background:var(--surface);flex-shrink:0;
+  border-bottom:1px solid var(--border);
+}
+.dp-fs-wd{
+  text-align:center;padding:9px 0 7px;
+  font-size:12px;font-weight:700;color:var(--text-3);
+}
+.dp-fs-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dp-fs-month-hdr{
+  font-size:17px;font-weight:800;letter-spacing:-.02em;
+  padding:20px 16px 10px;color:var(--text);
+}
+.dp-fs-days{display:grid;grid-template-columns:repeat(7,1fr)}
+.dp-fs-day{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  aspect-ratio:1;cursor:pointer;border:none;background:transparent;
+  color:var(--text);font-size:18px;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+  transition:background .08s;
+}
+.dp-fs-day.fs-past{color:var(--text-3);opacity:.3;pointer-events:none}
+.dp-fs-day.fs-empty{pointer-events:none;cursor:default}
+.dp-fs-day.fs-today .dp-fs-num{font-weight:900}
+.dp-fs-num{
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;position:relative;z-index:1;transition:background .1s,color .1s;
+}
+/* Range background (full cell, behind the circle) */
+.dp-fs-day.fs-in-range{background:rgba(26,86,219,.08)}
+.dp-fs-day.fs-sel-start{background:linear-gradient(to right,transparent 50%,rgba(26,86,219,.08) 50%)}
+.dp-fs-day.fs-sel-end{background:linear-gradient(to left,transparent 50%,rgba(26,86,219,.08) 50%)}
+.dp-fs-day.fs-sel-start.fs-sel-end{background:transparent}
+/* Selected circle */
+.dp-fs-day.fs-sel-start .dp-fs-num,
+.dp-fs-day.fs-sel-end .dp-fs-num{background:#1a56db!important;color:#fff!important;font-weight:700}
+/* Footer */
+.dp-fs-footer{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  border-top:2px solid var(--border);background:var(--surface);flex-shrink:0;
+}
+.dp-fs-date-box{
+  flex:1;cursor:pointer;padding:8px 10px;
+  border-radius:var(--radius);border:2px solid transparent;
+  transition:border-color .15s;
+}
+.dp-fs-date-box.fs-active{border-color:#1a56db}
+.dp-fs-date-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+.dp-fs-date-val{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
+.dp-fs-date-val.fs-empty-val{color:var(--text-3);font-weight:400;font-size:13px}
+.dp-fs-sep{font-size:18px;color:var(--text-3);flex-shrink:0}
+.dp-fs-done{
+  background:#1a56db;color:#fff;border:none;
+  border-radius:var(--radius);padding:12px 18px;
+  font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* On mobile the dp-popup (desktop picker) is never shown — dpFsOpen() handles it */
 @media(max-width:600px){
-  .dp-handle{display:block}
-
-  /* ── Bottom-sheet popup ── */
-  .dp-popup{
-    padding:12px 16px calc(24px + env(safe-area-inset-bottom));
-    left:0!important;right:0!important;bottom:0!important;top:auto!important;
-    width:100%!important;border-radius:22px 22px 0 0!important;
-    border-left:none;border-right:none;border-bottom:none;
-    animation:dpSlideUp .22s cubic-bezier(.2,.8,.2,1);
-  }
-
-  /* ── Nav buttons sit ABOVE the grid (grid layout: ‹ | month | ›) ── */
-  .dp-wrap{
-    display:grid;
-    grid-template-columns:48px 1fr 48px;
-    align-items:start;
-    gap:0;
-  }
-  .dp-nav{width:48px;height:48px;font-size:24px;border-radius:50%;margin-top:0;flex-shrink:0}
-
-  /* ── Only left month shown ── */
-  .dp-months{gap:0;min-width:0}
-  .dp-month-right{display:none}
-
-  /* ── Month/year title ── */
-  .dp-month-hdr{font-size:18px;font-weight:800;padding:8px 0 14px;text-align:center}
-
-  /* ── Weekday row ── */
-  .dp-weekdays{margin-bottom:4px}
-  .dp-wd{font-size:12px;font-weight:700;padding:6px 0;text-align:center}
-
-  /* ── Day grid: full width ── */
-  .dp-days{grid-template-columns:repeat(7,1fr);width:100%}
-
-  /* ── Day cells: large, tappable ── */
-  .dp-day{
-    width:100%;height:auto;aspect-ratio:1;
-    font-size:16px;font-weight:500;
-    border-radius:50%;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .dp-today::after{width:4px;height:4px;bottom:4px}
-
-  /* ── Footer hint ── */
-  .dp-footer{margin-top:16px;padding-top:12px}
-  .dp-hint{font-size:13px;font-style:normal;font-weight:600;color:var(--text)}
-  .dp-footer .btn{padding:10px 18px;font-size:14px}
+  #bsDatePicker{display:none!important}
+  #dpBackdrop{display:none!important}
 }
 
 /* ============================================================
@@ -703,6 +744,18 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
 }
 .fab:hover{transform:scale(1.08);opacity:.88}
 @media(max-width:767px){.fab{bottom:72px;right:16px;width:48px;height:48px;font-size:23px}}
+
+/* Daily Brief floating button — desktop only, sits above the + FAB */
+.fab-brief{
+  position:fixed;bottom:92px;right:28px;width:44px;height:44px;
+  border-radius:50%;background:var(--surface);color:var(--text);
+  border:1px solid var(--border);font-size:20px;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);
+  display:flex;align-items:center;justify-content:center;
+  z-index:150;transition:transform .15s ease,background var(--transition),box-shadow .15s;
+}
+.fab-brief:hover{transform:scale(1.08);background:var(--surface-2);box-shadow:0 4px 16px rgba(0,0,0,.18)}
+@media(max-width:767px){.fab-brief{display:none!important}}
 
 /* ============================================================
    LOGIN OVERLAY
@@ -1245,6 +1298,8 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     </div><!-- /workspace -->
   </div><!-- /main -->
 
+  <!-- FLOATING DAILY BRIEF BUTTON (desktop only) -->
+  <button class="fab-brief" onclick="openDailyBrief()" title="Daily Brief">☀️</button>
   <!-- FLOATING ADD BOOKING BUTTON -->
   <button class="fab" id="fabAddBooking" title="Add Booking">＋</button>
 
@@ -1268,6 +1323,36 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   </nav>
 
 </div><!-- /app -->
+
+<!-- ── FULL-SCREEN DATE PICKER (mobile) ───────────────────────── -->
+<div id="dpFullScreen" class="dp-fullscreen" style="display:none">
+  <div class="dp-fs-header">
+    <button class="dp-fs-close" onclick="dpFsClose()">×</button>
+    <span class="dp-fs-title" id="dp-fs-title">Select dates</span>
+  </div>
+  <div class="dp-fs-wd-row">
+    <div class="dp-fs-wd">Sun</div>
+    <div class="dp-fs-wd">Mon</div>
+    <div class="dp-fs-wd">Tue</div>
+    <div class="dp-fs-wd">Wed</div>
+    <div class="dp-fs-wd">Thu</div>
+    <div class="dp-fs-wd">Fri</div>
+    <div class="dp-fs-wd">Sat</div>
+  </div>
+  <div class="dp-fs-body" id="dp-fs-body"></div>
+  <div class="dp-fs-footer">
+    <div class="dp-fs-date-box fs-active" id="dp-fs-ci-box" onclick="dpFsSetMode('ci')">
+      <div class="dp-fs-date-label">Check-in</div>
+      <div class="dp-fs-date-val fs-empty-val" id="dp-fs-ci-val">Select date</div>
+    </div>
+    <div class="dp-fs-sep">→</div>
+    <div class="dp-fs-date-box" id="dp-fs-co-box" onclick="dpFsSetMode('co')">
+      <div class="dp-fs-date-label">Check-out</div>
+      <div class="dp-fs-date-val fs-empty-val" id="dp-fs-co-val">Select date</div>
+    </div>
+    <button class="dp-fs-done" onclick="dpFsClose()">Done</button>
+  </div>
+</div>
 
 <!-- ====== MODALS ====== -->
 

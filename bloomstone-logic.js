@@ -3707,7 +3707,156 @@ function dpInit(){
   const t=new Date();DP.vy=t.getFullYear();DP.vm=t.getMonth();
 }
 
+// ============================================================
+// FULL-SCREEN DATE PICKER  (mobile ≤600px)
+// ============================================================
+const DPF={mode:'ci',ci:null,co:null};
+const MNAMES_FS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function dpFsOpen(mode){
+  DPF.mode=mode;
+  DPF.ci=document.getElementById('f-checkin').value||null;
+  DPF.co=document.getElementById('f-checkout').value||null;
+  const el=document.getElementById('dpFullScreen');
+  el.style.display='flex';
+  dpFsRender();
+  dpFsUpdateFooter();
+  dpFsUpdateTitle();
+  // Scroll to relevant month after render
+  requestAnimationFrame(()=>{
+    const target=DPF.ci||new Date().toISOString().slice(0,10);
+    const cell=document.querySelector(`#dp-fs-body [data-date="${target}"]`);
+    if(cell){
+      const hdr=cell.closest('.dp-fs-month-block');
+      if(hdr)hdr.scrollIntoView({block:'start',behavior:'smooth'});
+    }
+  });
+}
+
+function dpFsClose(){
+  document.getElementById('dpFullScreen').style.display='none';
+  // Commit selections to hidden inputs
+  document.getElementById('f-checkin').value=DPF.ci||'';
+  document.getElementById('f-checkout').value=DPF.co||'';
+  if(DPF.ci)document.getElementById('dp-ci-btn')?.classList.remove('error');
+  if(DPF.co)document.getElementById('dp-co-btn')?.classList.remove('error');
+  dpRefreshTriggers();
+  onDatesChange();
+}
+
+function dpFsSetMode(mode){
+  DPF.mode=mode;
+  dpFsUpdateFooter();
+  dpFsUpdateTitle();
+}
+
+function dpFsUpdateTitle(){
+  const el=document.getElementById('dp-fs-title');
+  if(!el)return;
+  if(DPF.ci&&DPF.co){
+    const n=Math.max(0,Math.round((new Date(DPF.co+'T12:00:00')-new Date(DPF.ci+'T12:00:00'))/86400000));
+    el.textContent=`${n} night${n!==1?'s':''} selected`;
+  }else{
+    el.textContent=DPF.mode==='ci'?'Pick check-in date':'Pick check-out date';
+  }
+}
+
+function dpFsUpdateFooter(){
+  const ciVal=document.getElementById('dp-fs-ci-val');
+  const coVal=document.getElementById('dp-fs-co-val');
+  const ciBox=document.getElementById('dp-fs-ci-box');
+  const coBox=document.getElementById('dp-fs-co-box');
+  if(ciVal){
+    if(DPF.ci){ciVal.textContent=fmtDate(DPF.ci);ciVal.classList.remove('fs-empty-val');}
+    else{ciVal.textContent='Select date';ciVal.classList.add('fs-empty-val');}
+  }
+  if(coVal){
+    if(DPF.co){coVal.textContent=fmtDate(DPF.co);coVal.classList.remove('fs-empty-val');}
+    else{coVal.textContent='Select date';coVal.classList.add('fs-empty-val');}
+  }
+  if(ciBox)ciBox.classList.toggle('fs-active',DPF.mode==='ci');
+  if(coBox)coBox.classList.toggle('fs-active',DPF.mode==='co');
+}
+
+function dpFsSelectDay(dateStr){
+  if(DPF.mode==='ci'){
+    DPF.ci=dateStr;
+    if(DPF.co&&DPF.co<=DPF.ci)DPF.co=null;
+    DPF.mode='co';
+  }else{
+    if(DPF.ci&&dateStr<=DPF.ci){
+      DPF.ci=dateStr;DPF.co=null;DPF.mode='co';
+    }else{
+      DPF.co=dateStr;
+      DPF.mode='ci';
+    }
+  }
+  // Save immediately to hidden inputs so they're always in sync
+  document.getElementById('f-checkin').value=DPF.ci||'';
+  document.getElementById('f-checkout').value=DPF.co||'';
+  dpFsApplyClasses();
+  dpFsUpdateFooter();
+  dpFsUpdateTitle();
+  // Auto-close with brief visual delay when both dates set
+  if(DPF.ci&&DPF.co){
+    setTimeout(()=>{dpFsClose();},500);
+  }
+}
+
+function dpFsRender(){
+  const today=todayISO();
+  const now=new Date();
+  let y=now.getFullYear(),m=now.getMonth();
+  let html='';
+  for(let i=0;i<14;i++){
+    html+=dpFsRenderMonth(y,m,today);
+    m++;if(m>11){m=0;y++;}
+  }
+  document.getElementById('dp-fs-body').innerHTML=html;
+  dpFsApplyClasses();
+}
+
+function dpFsRenderMonth(year,month,today){
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMo=new Date(year,month+1,0).getDate();
+  let h=`<div class="dp-fs-month-block" data-ym="${year}-${month}">`;
+  h+=`<div class="dp-fs-month-hdr">${MNAMES_FS[month]} ${year}</div>`;
+  h+=`<div class="dp-fs-days">`;
+  for(let i=0;i<firstDay;i++)h+=`<div class="dp-fs-day fs-empty"></div>`;
+  for(let d=1;d<=daysInMo;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='dp-fs-day';
+    if(ds<today)cls+=' fs-past';
+    if(ds===today)cls+=' fs-today';
+    h+=`<div class="${cls}" data-date="${ds}" onclick="dpFsSelectDay('${ds}')"><div class="dp-fs-num">${d}</div></div>`;
+  }
+  h+=`</div></div>`;
+  return h;
+}
+
+function dpFsApplyClasses(){
+  document.querySelectorAll('#dp-fs-body .dp-fs-day').forEach(el=>{
+    el.classList.remove('fs-sel-start','fs-sel-end','fs-in-range');
+    const num=el.querySelector('.dp-fs-num');
+    if(num){num.style.background='';num.style.color='';}
+  });
+  if(!DPF.ci&&!DPF.co)return;
+  document.querySelectorAll('#dp-fs-body .dp-fs-day[data-date]').forEach(el=>{
+    const ds=el.dataset.date;
+    const num=el.querySelector('.dp-fs-num');if(!num)return;
+    const isCI=ds===DPF.ci;
+    const isCO=ds===DPF.co;
+    const inRange=DPF.ci&&DPF.co&&ds>DPF.ci&&ds<DPF.co;
+    if(isCI){el.classList.add('fs-sel-start');num.style.background='#1a56db';num.style.color='#fff';}
+    if(isCO){el.classList.add('fs-sel-end');num.style.background='#1a56db';num.style.color='#fff';}
+    if(inRange)el.classList.add('fs-in-range');
+  });
+}
+
 function dpOpen(mode){
+  // On mobile: use the full-screen picker instead
+  if(window.innerWidth<=600){dpFsOpen(mode);return;}
+
   DP.mode=mode;
   // Sync current values from hidden inputs
   DP.ci=document.getElementById('f-checkin').value||null;
@@ -3729,7 +3878,6 @@ function dpOpen(mode){
   dpRender();
   dpPosition(document.getElementById(mode==='ci'?'dp-ci-btn':'dp-co-btn'));
   document.getElementById('bsDatePicker').style.display='block';
-  if(window.innerWidth<=600)document.getElementById('dpBackdrop').style.display='block';
   DP.open=true;
 }
 
@@ -3775,8 +3923,8 @@ function dpClearAll(){
 }
 
 function dpClearOne(which){
-  if(which==='ci'){DP.ci=null;document.getElementById('f-checkin').value='';}
-  else{DP.co=null;document.getElementById('f-checkout').value='';}
+  if(which==='ci'){DP.ci=null;DPF.ci=null;document.getElementById('f-checkin').value='';}
+  else{DP.co=null;DPF.co=null;document.getElementById('f-checkout').value='';}
   dpRefreshTriggers();dpRender();
   onDatesChange();
 }
@@ -3791,20 +3939,11 @@ function dpNextMonth(){
 function dpSelectDay(dateStr){
   if(DP.mode==='ci'){
     DP.ci=dateStr;
-    // Clear checkout if it's before/same as new checkin
     if(DP.co&&DP.co<=DP.ci)DP.co=null;
     DP.mode='co';
-    // On mobile: advance one month so checkout dates are visible
-    if(window.innerWidth<=600){
-      DP.vm++;if(DP.vm>11){DP.vm=0;DP.vy++;}
-    }
   }else{
     if(DP.ci&&dateStr<=DP.ci){
-      // Clicked before checkin — restart as checkin
       DP.ci=dateStr;DP.co=null;DP.mode='co';
-      if(window.innerWidth<=600){
-        DP.vm++;if(DP.vm>11){DP.vm=0;DP.vy++;}
-      }
     }else{
       DP.co=dateStr;
       DP.mode='ci';
@@ -3848,6 +3987,7 @@ function dpRefreshTriggers(){
 function dpSyncFromHidden(){
   DP.ci=document.getElementById('f-checkin').value||null;
   DP.co=document.getElementById('f-checkout').value||null;
+  DPF.ci=DP.ci;DPF.co=DP.co; // keep full-screen state in sync
   dpRefreshTriggers();
 }
 
