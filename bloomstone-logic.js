@@ -156,8 +156,8 @@ function saveAsExcel(){
     const prRows=properties.map(p=>[p.id,p.name,p.city,p.address||'',p.beds||0,p.baseGuests||2,p.maxGuests||4,p.baseRate||0,p.extraGuestFee||0,(p.blockedDates||[]).join(','),p.notes||'']);
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([prHeaders,...prRows]),'Properties');
     // Platforms sheet
-    const plHeaders=['ID','Name','Commission %','VAT %','Color'];
-    const plRows=platforms.map(p=>[p.id,p.name,p.commission,p.vat,p.color]);
+    const plHeaders=['ID','Name','Commission %','VAT %','Guest Fee %','Color'];
+    const plRows=platforms.map(p=>[p.id,p.name,p.commission,p.vat,p.guestFee||0,p.color]);
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([plHeaders,...plRows]),'Platforms');
     // Expenses sheet
     const expHeaders=['ID','Month','Property','Promo Cost','Cleaning Cost','Water','Electricity','Supplies','Maintenance','Other Expenses','Total','Notes'];
@@ -217,7 +217,7 @@ function loadFromExcel(){
         // Platforms
         if(wb.SheetNames.includes('Platforms')){
           const rows=XLSX.utils.sheet_to_json(wb.Sheets['Platforms'],{defval:''});
-          if(rows.length){platforms=rows.map(r=>({id:r.ID||genId(),name:r.Name||'',commission:+r['Commission %']||0,vat:+r['VAT %']||0,color:r.Color||'#888'}));imported.platforms=platforms.length;}
+          if(rows.length){platforms=rows.map(r=>({id:r.ID||genId(),name:r.Name||'',commission:+r['Commission %']||0,vat:+r['VAT %']||0,guestFee:+r['Guest Fee %']||0,color:r.Color||'#888'}));imported.platforms=platforms.length;}
         }
         // Expenses
         if(wb.SheetNames.includes('Expenses')){
@@ -248,12 +248,12 @@ const DEFAULT_TASKS = [
 ];
 
 const DEFAULT_PLATFORMS = [
-  {id:'p_airbnb', name:'Airbnb',         commission:3,  vat:12, color:'#FF5A5F'},
-  {id:'p_booking',name:'Booking.com',    commission:15, vat:0,  color:'#003580'},
-  {id:'p_agoda',  name:'Agoda',          commission:15, vat:0,  color:'#E31837'},
-  {id:'p_trip',   name:'Trip.com',       commission:12, vat:0,  color:'#287DFA'},
-  {id:'p_yr',     name:'Your.Rentals',   commission:5,  vat:0,  color:'#00A699'},
-  {id:'p_direct', name:'Direct Booking', commission:0,  vat:0,  color:'#5B4BDB'},
+  {id:'p_airbnb', name:'Airbnb',         commission:3,  vat:12, guestFee:14, color:'#FF5A5F'},
+  {id:'p_booking',name:'Booking.com',    commission:15, vat:0,  guestFee:0,  color:'#003580'},
+  {id:'p_agoda',  name:'Agoda',          commission:15, vat:0,  guestFee:0,  color:'#E31837'},
+  {id:'p_trip',   name:'Trip.com',       commission:12, vat:0,  guestFee:0,  color:'#287DFA'},
+  {id:'p_yr',     name:'Your.Rentals',   commission:5,  vat:0,  guestFee:0,  color:'#00A699'},
+  {id:'p_direct', name:'Direct Booking', commission:0,  vat:0,  guestFee:0,  color:'#5B4BDB'},
 ];
 
 const DEFAULT_PROPERTIES = [
@@ -344,8 +344,11 @@ function loadAll(){
     bookings  =Array.isArray(d.bookings)  ?d.bookings  :[];
     properties=Array.isArray(d.properties)&&d.properties.length?d.properties:DEFAULT_PROPERTIES.map(p=>({...p}));
     platforms =Array.isArray(d.platforms) &&d.platforms.length ?d.platforms :DEFAULT_PLATFORMS.map(p=>({...p}));
-    // Migrate: fill in missing colors using DEFAULT_PLATFORMS name-match or a fallback
-    platforms=platforms.map(p=>({...p,color:p.color||(DEFAULT_PLATFORMS.find(d=>d.name===p.name)?.color)||'#888'}));
+    // Migrate: fill in missing colors and guestFee using DEFAULT_PLATFORMS name-match or a fallback
+    platforms=platforms.map(p=>({...p,
+      color:p.color||(DEFAULT_PLATFORMS.find(d=>d.name===p.name)?.color)||'#888',
+      guestFee:p.guestFee!=null?p.guestFee:(DEFAULT_PLATFORMS.find(d=>d.name===p.name)?.guestFee??0),
+    }));
     expenses  =Array.isArray(d.expenses)  ?d.expenses  :[];
     trash     =Array.isArray(d.trash)     ?d.trash     :[];
     properties=properties.map(p=>({baseGuests:2,maxGuests:Math.max(2,(p.beds||1)*2),extraGuestFee:300,baseRate:0,blockedDates:[],...p}));
@@ -512,7 +515,17 @@ function autoSaveDraft(){
     property:document.getElementById('f-property')?.value||'',
     platform:document.getElementById('f-platform')?.value||'',
     rate:document.getElementById('f-rate')?.value||'',
+    promo:document.getElementById('f-promo')?.value||'0',
     specialOffer:document.getElementById('f-specialoffer')?.value||'0',
+    serviceFee:document.getElementById('f-servicefee')?.value||'0',
+    guestServiceFee:document.getElementById('f-guestservicefee')?.value||'0',
+    extraGuests:document.getElementById('f-extraguests')?.value||'0',
+    storeSales:document.getElementById('f-store')?.value||'0',
+    cleaningFee:document.getElementById('f-cleaning')?.value||'0',
+    deposit:document.getElementById('f-deposit')?.value||'',
+    depRefundedAmt:document.getElementById('f-dep-refunded-amt')?.value||'0',
+    status:document.getElementById('f-status')?.value||'',
+    payment:document.getElementById('f-payment')?.value||'',
     notes:document.getElementById('f-notes')?.value||'',
     updatedAt:new Date().toISOString()
   };
@@ -541,7 +554,22 @@ function openDraftInDrawer(draftId){
   if(draft.property)document.getElementById('f-property').value=draft.property;
   if(draft.platform)setPlatPickerValue(draft.platform);
   if(draft.rate)document.getElementById('f-rate').value=draft.rate;
-  if(draft.specialOffer)document.getElementById('f-specialoffer').value=draft.specialOffer;
+  const dPromo=document.getElementById('f-promo');
+  if(dPromo&&draft.promo!=null){dPromo.dataset.keepValue='1';dPromo.value=draft.promo;delete dPromo.dataset.keepValue;}
+  const dSO=document.getElementById('f-specialoffer');
+  if(dSO&&draft.specialOffer!=null){dSO.dataset.keepValue='1';dSO.value=draft.specialOffer;delete dSO.dataset.keepValue;}
+  const dSvc=document.getElementById('f-servicefee');
+  if(dSvc&&draft.serviceFee!=null){dSvc.value=draft.serviceFee;}
+  if(draft.guestServiceFee!=null){
+    const el=document.getElementById('f-guestservicefee');
+    if(el){el.dataset.keepValue='1';el.value=draft.guestServiceFee;delete el.dataset.keepValue;}
+  }
+  if(draft.depRefundedAmt!=null){const el=document.getElementById('f-dep-refunded-amt');if(el)el.value=draft.depRefundedAmt;}
+  if(draft.storeSales!=null)document.getElementById('f-store').value=draft.storeSales;
+  if(draft.cleaningFee!=null)document.getElementById('f-cleaning').value=draft.cleaningFee;
+  if(draft.deposit!=null)document.getElementById('f-deposit').value=draft.deposit;
+  if(draft.status){const s=document.getElementById('f-status');if(s){s.value=draft.status;applyStatusColor(s);}}
+  if(draft.payment){const p=document.getElementById('f-payment');if(p)p.value=draft.payment;}
   if(draft.notes)document.getElementById('f-notes').value=draft.notes;
   onPropertyChange();calcFinancials();
   renderGuestProfile(draft.guest||'');
@@ -563,6 +591,7 @@ function printBooking(){
   const fNotes=document.getElementById('f-notes')?.value||'';
   const fDeposit=+document.getElementById('f-deposit')?.value||0;
   const fSpecialOffer=+document.getElementById('f-specialoffer')?.value||0;
+  const fGuestSvcFee=+document.getElementById('f-guestservicefee')?.value||0;
   const bTemp={checkin:fCI,checkout:fCO,rate:fRate,promo:fPromo,specialOffer:fSpecialOffer,serviceFee:fSvc,platform:fPlatform,property:fProp,extraGuests:0,storeSales:0,adjustments:_currentAdjustments};
   const t=calcTotals(bTemp);
   const propObj=properties.find(p=>p.id===fProp);
@@ -612,16 +641,18 @@ function printBooking(){
       ${t.extraFee?`<tr><td style="color:#555">Extra Guest Fee</td><td>+${fmtMoney(t.extraFee)}</td></tr>`:''}
       ${adjRows}
       <tr class="total-row"><td>Total Charged to Guest</td><td>${fmtMoney(t.guestTotal)}</td></tr>
+      ${fGuestSvcFee?`<tr><td style="color:#555">+ Platform Guest Service Fee</td><td>+${fmtMoney(fGuestSvcFee)}</td></tr>`:''}
+      ${fGuestSvcFee?`<tr><td style="color:#555">= Total Guest Paid to Platform</td><td style="font-weight:700">${fmtMoney(t.guestTotal+fGuestSvcFee)}</td></tr>`:''}
     </table>
     <hr class="divider"/>
     <div class="section-title" style="color:#2d6a1f">Owner Earnings</div>
     <table>
       <tr><td style="color:#555">Guest charges received</td><td>${fmtMoney(t.guestTotal)}</td></tr>
-      ${t.platFee?`<tr><td style="color:#555">${esc(fPlatform||'Platform')} commission (${t.comm}%${t.vat?'+'+t.vat+'%VAT':''})</td><td style="color:#c0392b">−${fmtMoney(t.platFee)}</td></tr>`:''}
-      ${t.svcFee?`<tr><td style="color:#555">Host Service Fee</td><td style="color:#c0392b">−${fmtMoney(t.svcFee)}</td></tr>`:''}
+      ${t.specialOffer?`<tr><td style="color:#555">Special Offer (absorbed, already in guest charges)</td><td style="color:#999">−${fmtMoney(t.specialOffer)}</td></tr>`:''}
+      ${fSvc?`<tr><td style="color:#555">Host Service Fee${t.comm?` (${t.comm}%${t.vat?'+'+t.vat+'%VAT':''})`:''}</td><td style="color:#c0392b">−${fmtMoney(fSvc)}</td></tr>`:''}
       ${t.cleaningFee?`<tr><td style="color:#555">Cleaning Fee</td><td style="color:#c0392b">−${fmtMoney(t.cleaningFee)}</td></tr>`:''}
       ${t.storeSales?`<tr><td style="color:#555">Store / Add-on Sales</td><td style="color:#2d6a1f">+${fmtMoney(t.storeSales)}</td></tr>`:''}
-      <tr class="total-row"><td>Net Revenue</td><td style="color:#2d6a1f">${fmtMoney(t.netRevenue)}</td></tr>
+      <tr class="total-row"><td>Net Revenue</td><td style="color:#2d6a1f">${fmtMoney(t.guestTotal-fSvc-t.cleaningFee+t.storeSales)}</td></tr>
     </table>
     ${fDeposit?`<hr class="divider"/><table><tr><td style="color:#555">Security Deposit</td><td>${fmtMoney(fDeposit)}</td></tr></table>`:''}
     ${fNotes?`<hr class="divider"/><div class="section-title">Notes</div><div style="font-size:13px;color:#444">${esc(fNotes)}</div>`:''}
@@ -663,8 +694,8 @@ function calcTotals(b){
   const promo=+b.promo||0;
   const bkFee=rate*nights;                        // accommodation: nights × rate
   const promoTotal=promo*nights;                   // direct booking promo discount (per night × nights)
-  const specialOffer=+b.specialOffer||0;           // platform special offer (flat total from platform)
-  const stayFee=Math.max(0,bkFee-promoTotal-specialOffer); // accommodation after discounts
+  const specialOffer=+b.specialOffer||0;           // platform special offer: owner-side cost (platform deducts from remittance)
+  const stayFee=Math.max(0,bkFee-promoTotal-specialOffer); // accommodation after direct promo & platform special offer
   const prop=properties.find(p=>p.id===b.property);
   const feePerG=prop?(+prop.extraGuestFee??300):300;
   const baseG=prop?(+prop.baseGuests||2):2;
@@ -680,12 +711,16 @@ function calcTotals(b){
   const comm=plat?(+plat.commission||0):0;
   const vat=plat?(+plat.vat||0):0;
   const platFee=Math.max(0,stayFee)*(comm/100)*(1+vat/100); // commission on accommodation only
+  const guestFeeRate=plat?(+plat.guestFee||0):0;
+  const guestServiceFee=stayFee*(guestFeeRate/100); // platform charges to guest (informational)
+  const totalGuestPaid=guestTotal+guestServiceFee;
   const cleaningFee=+b.cleaningFee||0;             // owner's cleaning cost
   const storeSales=+b.storeSales||0;               // store/add-on income
   // ── Net Revenue to owner ──
-  const netRevenue=guestTotal-svcFee-platFee-cleaningFee+storeSales;
+  const netRevenue=guestTotal-svcFee-cleaningFee+storeSales;
   return{nights,rate,promo,promoTotal,specialOffer,stayFee,bkFee,extraFee,svcFee,platFee,
          guestTotal,cleaningFee,storeSales,netRevenue,
+         guestFeeRate,guestServiceFee,totalGuestPaid,
          extraG,comm,vat,feePerG,baseG,maxG,adjTotal};
 }
 
@@ -893,6 +928,33 @@ function selectPlatform(name){
   calcFinancials();
   updateDrawerSummary();
 }
+function updatePromoSpecialOfferState(){
+  const platName=(document.getElementById('f-platform')?.value||'').trim().toLowerCase();
+  const isDirect=!platName||platName==='direct';
+  const promoEl=document.getElementById('f-promo');
+  const soEl=document.getElementById('f-specialoffer');
+  if(promoEl){
+    promoEl.disabled=!isDirect;
+    promoEl.style.opacity=isDirect?'':'0.4';
+    promoEl.style.cursor=isDirect?'':'not-allowed';
+    if(!isDirect&&!promoEl.dataset.keepValue){promoEl.value=0;}
+  }
+  if(soEl){
+    soEl.disabled=isDirect;
+    soEl.style.opacity=isDirect?'0.4':'';
+    soEl.style.cursor=isDirect?'not-allowed':'';
+    if(isDirect&&!soEl.dataset.keepValue){soEl.value=0;}
+  }
+  if(isDirect){
+    const _sf=document.getElementById('f-servicefee');
+    if(_sf){delete _sf.dataset.manual;_sf.style.borderColor='';_sf.value=0;}
+    const _sfr=document.getElementById('f-servicefee-reset');
+    if(_sfr)_sfr.style.display='none';
+    const _gsf=document.getElementById('f-guestservicefee');
+    if(_gsf){delete _gsf.dataset.manual;_gsf.value=0;}
+    calcFinancials();
+  }
+}
 function setPlatPickerValue(name){
   const inp=document.getElementById('f-platform');
   if(inp)inp.value=name||'';
@@ -902,6 +964,7 @@ function setPlatPickerValue(name){
     else{label.textContent='Select\u2026';label.style.color='var(--text-3)';}
   }
   buildPlatPickerOptions();
+  updatePromoSpecialOfferState();
 }
 // Close picker when clicking outside
 document.addEventListener('click',e=>{
@@ -1091,17 +1154,26 @@ function openBookingDrawer(id=null){
   ['f-checkin','f-checkout','f-guest','f-rate','f-notes'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=''});
   dpSyncFromHidden(); // reset date picker triggers to blank
   // promo + servicefee intentionally left blank so yellow highlight prompts user
-  ['f-promo','f-servicefee','f-specialoffer'].forEach(k=>{const el=document.getElementById(k);if(el){el.value='';el.classList.remove('error');}});
+  ['f-promo','f-specialoffer'].forEach(k=>{const el=document.getElementById(k);if(el){el.value='';el.classList.remove('error');}});
+  // Clear service fee and remove manual flag
+  const _svcEl=document.getElementById('f-servicefee');
+  if(_svcEl){_svcEl.value='';_svcEl.classList.remove('error');delete _svcEl.dataset.manual;_svcEl.style.borderColor='';}
+  const _svcRstBtn=document.getElementById('f-servicefee-reset');
+  if(_svcRstBtn)_svcRstBtn.style.display='none';
+  // Clear guest service fee and remove manual flag
+  const _gsfEl=document.getElementById('f-guestservicefee');
+  if(_gsfEl){_gsfEl.value=0;delete _gsfEl.dataset.manual;}
   ['f-store','f-cleaning','f-extraguests'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=0;});
-  document.getElementById('f-deposit').value=1000;
+  document.getElementById('f-deposit').value=0;
+  document.getElementById('f-dep-refunded-amt').value=0;
   _currentAdjustments=[];
   setPlatPickerValue('');
   document.getElementById('f-property').value='';
   document.getElementById('f-status').value='Confirmed';
   applyStatusColor(document.getElementById('f-status'));
   document.getElementById('f-payment').value='Platform (Auto)';
-  document.getElementById('f-dep-collected').checked=false;
-  document.getElementById('f-dep-refunded').checked=false;
+  document.getElementById('f-dep-collected').value='';
+  document.getElementById('f-dep-refunded').value='';
   document.getElementById('f-nights').value='';
   document.getElementById('overlapAlert').classList.remove('show');
   if(id){
@@ -1115,23 +1187,28 @@ function openBookingDrawer(id=null){
       document.getElementById('f-property').value=b.property||'';
       document.getElementById('f-rate').value=b.rate??'';
       const promoEl=document.getElementById('f-promo');
-      if(promoEl){promoEl.value=b.promo??0;promoEl.classList.remove('error');}
+      if(promoEl){promoEl.dataset.keepValue='1';promoEl.value=b.promo??0;promoEl.classList.remove('error');delete promoEl.dataset.keepValue;}
       const soEl=document.getElementById('f-specialoffer');
-      if(soEl){soEl.value=b.specialOffer??0;soEl.classList.remove('error');}
+      if(soEl){soEl.dataset.keepValue='1';soEl.value=b.specialOffer??0;soEl.classList.remove('error');delete soEl.dataset.keepValue;}
       // bookingFee auto-calculated
       const svcEl=document.getElementById('f-servicefee');
-      if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');}
+      if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');delete svcEl.dataset.manual;svcEl.style.borderColor='';}
+      const svcRstBtn=document.getElementById('f-servicefee-reset');
+      if(svcRstBtn)svcRstBtn.style.display='none';
+      const gsfEl=document.getElementById('f-guestservicefee');
+      if(gsfEl){gsfEl.value=b.guestServiceFee??0;delete gsfEl.dataset.manual;}
       document.getElementById('f-extraguests').value=b.extraGuests??0;
       document.getElementById('f-store').value=b.storeSales??0;
       document.getElementById('f-cleaning').value=b.cleaningFee??0;
-      document.getElementById('f-deposit').value=b.deposit??1000;
+      document.getElementById('f-deposit').value=b.deposit??0;
+      document.getElementById('f-dep-refunded-amt').value=b.depositRefunded?(b.depositRefundedAmt||0):0;
       document.getElementById('f-status').value=b.status||'Confirmed';
       applyStatusColor(document.getElementById('f-status'));
       document.getElementById('f-payment').value=b.payment||'Platform (Auto)';
       document.getElementById('f-notes').value=b.notes||'';
       // guestPrefs merged into notes
-      document.getElementById('f-dep-collected').checked=!!b.depositCollected;
-      document.getElementById('f-dep-refunded').checked=!!b.depositRefunded;
+      document.getElementById('f-dep-collected').value=(+b.deposit||0)>0?'1':(b.depositCollected?'1':'');
+      document.getElementById('f-dep-refunded').value=b.depositRefunded?'1':'';
       onDatesChange();onPropertyChange();
       _currentAdjustments=(b.adjustments||[]).map(a=>({...a}));
       renderDrawerHistory(b);renderGuestProfile(b.guest);
@@ -1362,6 +1439,7 @@ function calcFinancials(){
     promo:document.getElementById('f-promo')?.value||0,
     specialOffer:document.getElementById('f-specialoffer')?.value||0,
     serviceFee:document.getElementById('f-servicefee')?.value||0,
+    guestServiceFee:+document.getElementById('f-guestservicefee')?.value||0,
     platform:document.getElementById('f-platform')?.value||'',
     property:pid,
     extraGuests:extraG,
@@ -1373,7 +1451,27 @@ function calcFinancials(){
   const n=document.getElementById('f-nights');if(n)n.value=t.nights||'';
   const _set=(id,text,color)=>{const el=document.getElementById(id);if(!el)return;el.textContent=text;if(color!==undefined)el.style.color=color;};
 
-  // ── SECTION 1: Guest Invoice ──
+  // Auto-populate service fee if not manually edited
+  const svcEl=document.getElementById('f-servicefee');
+  if(svcEl&&!svcEl.dataset.manual){
+    svcEl.value=t.platFee?( +t.platFee).toFixed(2):0;
+    const svcHint=document.getElementById('f-servicefee-hint');
+    if(svcHint)svcHint.textContent=t.platFee?`auto: ${fmtMoney(t.platFee)} (${t.comm}%${t.vat?'+'+t.vat+'%VAT':''})` :'';
+  }
+  const gsfEl=document.getElementById('f-guestservicefee');
+  if(gsfEl&&!gsfEl.dataset.manual){
+    gsfEl.value=t.guestServiceFee?(+t.guestServiceFee).toFixed(2):0;
+    const gsfHint=document.getElementById('f-guestservicefee-hint');
+    if(gsfHint)gsfHint.textContent=t.guestServiceFee?`auto: ${fmtMoney(t.guestServiceFee)} (${t.guestFeeRate}%)`:'';
+  }
+
+  // Re-read actual field values after auto-populate
+  const actualSvcFee=+document.getElementById('f-servicefee')?.value||0;
+  const actualGuestFee=+document.getElementById('f-guestservicefee')?.value||0;
+  const actualTotalGuestPaid=t.guestTotal+actualGuestFee;
+  const actualNet=t.guestTotal-actualSvcFee-t.cleaningFee+t.storeSales;
+
+  // ── SECTION 1: Guest Paid ──
   const bkLbl=document.getElementById('s-bkfee-label');
   if(bkLbl&&t.nights)bkLbl.textContent=`${t.nights} night${t.nights!==1?'s':''} × ${C()}${(+b.rate||0).toLocaleString()}`;
   else if(bkLbl)bkLbl.textContent='';
@@ -1381,22 +1479,38 @@ function calcFinancials(){
   _set('s-promo',t.promoTotal?`−${fmtMoney(t.promoTotal)}`:'—','var(--purple)');
   const promoSubLbl=document.getElementById('s-promo-sublabel');
   if(promoSubLbl)promoSubLbl.textContent=(t.promo&&t.nights>1)?`${t.nights} nights × ${C()}${(+b.promo||0).toLocaleString()}`:'';
-  _set('s-specialoffer',t.specialOffer?`−${fmtMoney(t.specialOffer)}`:'—','var(--purple)');
+  _set('s-specialoffer-guest',t.specialOffer?`−${fmtMoney(t.specialOffer)}`:'—','var(--purple)');
   _set('s-extra',t.extraFee?`+${fmtMoney(t.extraFee)}`:'—','var(--text-2)');
   _set('s-adj',t.adjTotal?`${t.adjTotal>=0?'+':''} ${fmtMoney(Math.abs(t.adjTotal))}`:'—','var(--text-2)');
   _set('s-guest-total',fmtMoney(t.guestTotal),'var(--text)');
   _set('s-guest-total-2',fmtMoney(t.guestTotal),'var(--text)');
+  _set('s-guestfee',actualGuestFee?`+${fmtMoney(actualGuestFee)}`:'—','var(--text-2)');
+  _set('s-total-guest-paid',actualTotalGuestPaid?fmtMoney(actualTotalGuestPaid):'—','var(--text)');
 
-  // ── SECTION 2: Owner Earnings ──
-  const platLbl=document.getElementById('s-platfee-label');
+  // ── SECTION 2: Host Payout ──
   const platName=b.platform||'';
-  if(platLbl)platLbl.textContent=platName&&t.comm?`${platName} commission (${t.comm}%${t.vat?'+'+t.vat+'% VAT':''})`:platName?`${platName} commission`:'Platform Commission';
-  _set('s-platfee',t.platFee?`−${fmtMoney(t.platFee)}`:'—','var(--red)');
-  _set('s-svcfee',t.svcFee?`−${fmtMoney(t.svcFee)}`:'—','var(--red)');
+  const svcLbl=document.getElementById('s-svcfee-label');
+  if(svcLbl)svcLbl.textContent=platName&&t.comm?`Host Service Fee (${t.comm}%${t.vat?'+'+t.vat+'%VAT':''})` :'Host Service Fee';
+  _set('s-specialoffer',t.specialOffer?`−${fmtMoney(t.specialOffer)}`:'—','var(--text-3)');
+  _set('s-svcfee',actualSvcFee?`−${fmtMoney(actualSvcFee)}`:'—','var(--red)');
   _set('s-cleaning',t.cleaningFee?`−${fmtMoney(t.cleaningFee)}`:'—','var(--text-2)');
-  _set('s-store',t.storeSales?`+${fmtMoney(t.storeSales)}`:'—','var(--green)');
-  _set('s-net',fmtMoney(t.netRevenue),'var(--green)');
+  _set('s-store-display',t.storeSales?`+${fmtMoney(t.storeSales)}`:'—','var(--green)');
+  _set('s-net',fmtMoney(actualNet),actualNet>=0?'var(--green)':'var(--red)');
   checkOverlap();
+}
+
+function resetServiceFee(){
+  const el=document.getElementById('f-servicefee');
+  if(el){delete el.dataset.manual;el.style.borderColor='';}
+  const rst=document.getElementById('f-servicefee-reset');
+  if(rst)rst.style.display='none';
+  calcFinancials();
+}
+
+function resetGuestServiceFee(){
+  const el=document.getElementById('f-guestservicefee');
+  if(el){delete el.dataset.manual;el.style.borderColor='';}
+  calcFinancials();
 }
 
 function checkOverlap(){
@@ -1432,13 +1546,15 @@ function _buildBookingFromForm(existing){
     adjustments:_currentAdjustments.filter(a=>a.desc||a.amount).map(a=>({...a})),
     storeSales:+document.getElementById('f-store').value||0,
     cleaningFee:+document.getElementById('f-cleaning').value||0,
+    guestServiceFee:+document.getElementById('f-guestservicefee')?.value||0,
     deposit:+document.getElementById('f-deposit').value||0,
     status:document.getElementById('f-status').value,
     payment:document.getElementById('f-payment').value,
     notes:document.getElementById('f-notes').value,
     guestPrefs:'',
-    depositCollected:document.getElementById('f-dep-collected').checked,
-    depositRefunded:document.getElementById('f-dep-refunded').checked,
+    depositCollected:(+document.getElementById('f-deposit').value||0)>0,
+    depositRefunded:(+document.getElementById('f-dep-refunded-amt').value||0)>0,
+    depositRefundedAmt:+document.getElementById('f-dep-refunded-amt').value||0,
     tasks:existing?.tasks||{},
     createdAt:existing?.createdAt||new Date().toISOString(),
     updatedAt:new Date().toISOString(),
@@ -2283,12 +2399,12 @@ function openPlatformModal(id=null){
   editingPlatId=id;
   document.getElementById('platModalTitle').textContent=id?'Edit Platform':'Add Platform';
   document.getElementById('plat-name').value='';document.getElementById('plat-comm').value=0;document.getElementById('plat-vat').value=12;document.getElementById('plat-color').value='#5B4BDB';
-  if(id){const p=platforms.find(x=>x.id===id);if(p){document.getElementById('plat-name').value=p.name;document.getElementById('plat-comm').value=p.commission;document.getElementById('plat-vat').value=p.vat;document.getElementById('plat-color').value=p.color;}}
+  if(id){const p=platforms.find(x=>x.id===id);if(p){document.getElementById('plat-name').value=p.name;document.getElementById('plat-comm').value=p.commission;document.getElementById('plat-vat').value=p.vat;document.getElementById('plat-color').value=p.color;document.getElementById('plat-guestfee').value=p.guestFee||0;}}
   openModal('platformModal');
 }
 function savePlatform(){
   const name=document.getElementById('plat-name').value.trim();if(!name){toast('Name required.','error');return;}
-  const data={id:editingPlatId||genId(),name,commission:+document.getElementById('plat-comm').value||0,vat:+document.getElementById('plat-vat').value||0,color:document.getElementById('plat-color').value||'#888'};
+  const data={id:editingPlatId||genId(),name,commission:+document.getElementById('plat-comm').value||0,vat:+document.getElementById('plat-vat').value||0,guestFee:+document.getElementById('plat-guestfee').value||0,color:document.getElementById('plat-color').value||'#888'};
   if(editingPlatId){
     const i=platforms.findIndex(p=>p.id===editingPlatId);
     if(i>=0){
@@ -3293,10 +3409,10 @@ function previewDriveImport(data){
 // ============================================================
 function buildXLSX(){
   const rows=[
-    ['ID','Guest','Check-in','Check-out','Nights','Platform','Property','City','Rate','Promo','Special Offer','Stay Fee','Extra Fee','Booking Fee','Platform Fee','Net Revenue','Store Sales','Deposit','Dep Collected','Dep Refunded','Payment','Status','Notes','Created At'],
+    ['ID','Guest','Check-in','Check-out','Nights','Platform','Property','City','Rate','Promo','Special Offer','Guest Service Fee','Stay Fee','Extra Fee','Booking Fee','Platform Fee','Net Revenue','Store Sales','Deposit','Dep Collected','Dep Refunded','Payment','Status','Notes','Created At'],
     ...bookings.map(b=>{
       const t=calcTotals(b);
-      return[b.id||'',b.guest||'',b.checkin||'',b.checkout||'',t.nights,b.platform||'',propName(b.property),propCity(b.property),b.rate||0,b.promo||0,b.specialOffer||0,t.stayFee.toFixed(2),t.extraFee.toFixed(2),t.bkFee.toFixed(2),t.platFee.toFixed(2),t.netRevenue.toFixed(2),b.storeSales||0,b.deposit||0,b.depositCollected?'Yes':'No',b.depositRefunded?'Yes':'No',b.payment||'',b.status||'',b.notes||'',b.createdAt||''];
+      return[b.id||'',b.guest||'',b.checkin||'',b.checkout||'',t.nights,b.platform||'',propName(b.property),propCity(b.property),b.rate||0,b.promo||0,b.specialOffer||0,b.guestServiceFee||0,t.stayFee.toFixed(2),t.extraFee.toFixed(2),t.bkFee.toFixed(2),t.platFee.toFixed(2),t.netRevenue.toFixed(2),b.storeSales||0,b.deposit||0,b.depositCollected?'Yes':'No',b.depositRefunded?'Yes':'No',b.payment||'',b.status||'',b.notes||'',b.createdAt||''];
     })
   ];
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -3479,7 +3595,7 @@ async function sheetsPush(silent=false){
         return{
           ID:b.id,Guest:b.guest,'Check-in':fmtDate(b.checkin),'Check-out':fmtDate(b.checkout),
           Nights:t.nights,Platform:b.platform,Property:propName(b.property),
-          Rate:b.rate||0,Promo:b.promo||0,'Special Offer':b.specialOffer||0,'Booking Fee':t.bkFee,'Service Fee':b.serviceFee||0,
+          Rate:b.rate||0,Promo:b.promo||0,'Special Offer':b.specialOffer||0,'Guest Service Fee':b.guestServiceFee||0,'Booking Fee':t.bkFee,'Service Fee':b.serviceFee||0,
           'Platform Commission':b.platformCommission??t.platFee,
           'Extra Guests':b.extraGuests??t.extraG,
           'Extra Guest Fee':b.extraGuestFee??t.extraFee,
@@ -3501,7 +3617,7 @@ async function sheetsPush(silent=false){
         'Map URL':p.map||'',Notes:p.notes||''
       })),
       platforms: platforms.map(p=>({
-        ID:p.id,Name:p.name,'Commission %':p.commission,'VAT %':p.vat,Color:p.color||'#888'
+        ID:p.id,Name:p.name,'Commission %':p.commission,'VAT %':p.vat,'Guest Fee %':p.guestFee||0,Color:p.color||'#888'
       })),
       expenses: expenses.map(e=>{
         const bksCI=bookings.filter(b=>b.status!=='Cancelled'&&b.checkin&&b.checkin.startsWith(e.month)&&(e.prop==='all'||b.property===e.prop));
@@ -3599,7 +3715,7 @@ function applySheetsPullData(data){
   if(Array.isArray(data.platforms)&&data.platforms.length){
     platforms=data.platforms.map(r=>({
       id:r.ID||genId(),name:r.Name||'',
-      commission:+r['Commission %']||0,vat:+r['VAT %']||0,
+      commission:+r['Commission %']||0,vat:+r['VAT %']||0,guestFee:+r['Guest Fee %']||0,
       // Prefer color from sheet; fall back to existing local color for same name; then default
       color:r.Color||platforms.find(p=>p.name===r.Name)?.color||'#888'
     }));
