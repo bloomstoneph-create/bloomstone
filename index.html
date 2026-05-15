@@ -1392,6 +1392,22 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
       <button class="btn btn-ghost btn-sm" onclick="dismissGuestConfirm()">No</button>
     </div>
 
+    <!-- ── PROPERTY + RATE (below guest name) ───────────────── -->
+    <div class="field-row" style="margin-bottom:4px">
+      <div class="field" style="flex:2">
+        <label class="label">Property <span class="req">*</span></label>
+        <select class="input input-req" id="f-property" onchange="onPropertyChange()" style="font-size:14px;font-weight:700;height:44px"></select>
+      </div>
+      <div class="field">
+        <label class="label">Nightly Rate (₱) <span class="req">*</span></label>
+        <input class="input input-req" id="f-rate" type="number" placeholder="0" oninput="calcFinancials()" style="font-size:16px;font-weight:700"/>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <div id="f-prop-city-badge" style="display:none" class="prop-city-badge"><span id="f-prop-city-icon" style="display:flex;align-items:center"></span><span id="f-prop-city-text"></span></div>
+      <div id="f-cap-hint" style="font-size:11px;color:var(--text-3)"></div>
+    </div>
+
     <!-- ── BOOKING ───────────────────────────────────────────── -->
     <div class="form-sec" style="margin-top:0">📅 Booking</div>
     <div class="alert-bar" id="overlapAlert">⚠ <span id="overlapText"></span></div>
@@ -1426,21 +1442,6 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     </div>
 
     <!-- Property + Rate -->
-    <div class="field-row" style="margin-bottom:4px">
-      <div class="field" style="flex:2">
-        <label class="label">Property <span class="req">*</span></label>
-        <select class="input input-req" id="f-property" onchange="onPropertyChange()" style="font-size:14px;font-weight:700;height:44px"></select>
-      </div>
-      <div class="field">
-        <label class="label">Nightly Rate (₱) <span class="req">*</span></label>
-        <input class="input input-req" id="f-rate" type="number" placeholder="0" oninput="calcFinancials()" style="font-size:16px;font-weight:700"/>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      <div id="f-prop-city-badge" style="display:none" class="prop-city-badge"><span id="f-prop-city-icon" style="display:flex;align-items:center"></span><span id="f-prop-city-text"></span></div>
-      <div id="f-cap-hint" style="font-size:11px;color:var(--text-3)"></div>
-    </div>
-
     <!-- Platform | Special Offer -->
     <div class="field-row" style="margin-bottom:8px">
       <div class="field" style="flex:2">

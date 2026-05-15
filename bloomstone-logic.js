@@ -925,6 +925,7 @@ function selectPlatform(name){
   if(btn)btn.classList.remove('open');
   if(list)list.classList.remove('open');
   buildPlatPickerOptions();
+  updatePromoSpecialOfferState();
   calcFinancials();
   updateDrawerSummary();
 }
