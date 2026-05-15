@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Bloomstone PMS</title>
 
 <!-- ── PWA: installable on iPhone & desktop ────────────── -->
@@ -732,10 +732,11 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
    MOBILE BOTTOM NAV
 ============================================================ */
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:100;padding:0 8px env(safe-area-inset-bottom)}
-.mobile-nav-items{display:flex;justify-content:space-around}
-.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:10px;font-weight:600;transition:color var(--transition);min-width:52px}
+.mobile-nav-items{display:flex;justify-content:space-around;align-items:flex-end}
+.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px 6px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:10px;font-weight:600;transition:color var(--transition);min-width:80px;flex:1}
 .mobile-nav-btn.active{color:var(--text)}
 .mobile-nav-btn .nav-icon{font-size:20px;line-height:1}
+.mobile-nav-add{color:var(--text);padding-bottom:2px}
 .mobile-hamburger{display:none;width:36px;height:36px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 
 /* ============================================================
@@ -786,10 +787,11 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .cal-event-bar{height:16px;line-height:16px;font-size:9px}
   .filter-bar{position:relative;top:auto}
   .exp-amounts{grid-template-columns:1fr 1fr}
-  /* FAB above bottom nav with safe area */
-  .fab{bottom:calc(68px + env(safe-area-inset-bottom));right:16px;width:48px;height:48px;font-size:23px}
-  .recent-fab-btn{bottom:calc(126px + env(safe-area-inset-bottom));right:16px}
-  #recentBookingsPanel{bottom:calc(178px + env(safe-area-inset-bottom))!important;right:12px!important;width:calc(100vw - 24px)!important}
+  /* Hide floating FABs on mobile — bottom nav handles these */
+  .fab{display:none!important}
+  .recent-fab-btn{display:none!important}
+  /* Recent panel appears above bottom nav */
+  #recentBookingsPanel{bottom:calc(70px + env(safe-area-inset-bottom))!important;right:8px!important;left:8px!important;width:auto!important}
   /* Mobile nav safe area */
   .mobile-nav{padding-bottom:env(safe-area-inset-bottom)}
 }
@@ -1242,12 +1244,19 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   <!-- MOBILE BOTTOM NAV -->
   <nav class="mobile-nav" id="mobileNav">
     <div class="mobile-nav-items">
-      <button class="mobile-nav-btn active" data-ws="today" onclick="mobileNavClick('today')"><span class="nav-icon">◎</span>Today</button>
-      <button class="mobile-nav-btn" data-ws="operations" onclick="mobileNavClick('operations')"><span class="nav-icon">⊟</span>Operations</button>
-      <button class="mobile-nav-btn" data-ws="finance" onclick="mobileNavClick('finance')"><span class="nav-icon">₱</span>Finance</button>
-      <button class="mobile-nav-btn" data-ws="properties" onclick="mobileNavClick('properties')"><span class="nav-icon">⌂</span>Properties</button>
-      <button class="mobile-nav-btn" data-ws="reports" onclick="mobileNavClick('reports')"><span class="nav-icon">↗</span>Reports</button>
-      <button class="mobile-nav-btn" data-ws="system" onclick="mobileNavClick('system')"><span class="nav-icon">⚙</span>System</button>
+      <!-- Calendar → opens Operations calendar view -->
+      <button class="mobile-nav-btn" id="mobileCalBtn" onclick="mobileNavClick('operations')">
+        <span class="nav-icon">📅</span>Calendar
+      </button>
+      <!-- Add Booking (centre, prominent) -->
+      <button class="mobile-nav-btn mobile-nav-add" onclick="openBookingDrawer()">
+        <span class="nav-icon" style="width:44px;height:44px;background:var(--text);color:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 12px rgba(0,0,0,.25)">＋</span>
+        Booking
+      </button>
+      <!-- Recent Bookings -->
+      <button class="mobile-nav-btn" onclick="toggleRecentPanel()">
+        <span class="nav-icon">📋</span>Recent
+      </button>
     </div>
   </nav>
 
