@@ -3885,10 +3885,16 @@ function dpFsClose(){
   // Commit selections to hidden inputs
   document.getElementById('f-checkin').value=DPF.ci||'';
   document.getElementById('f-checkout').value=DPF.co||'';
+  // Sync desktop DP state so dpRefreshTriggers() shows correct values in drawer buttons
+  DP.ci=DPF.ci;DP.co=DPF.co;
   if(DPF.ci)document.getElementById('dp-ci-btn')?.classList.remove('error');
   if(DPF.co)document.getElementById('dp-co-btn')?.classList.remove('error');
   dpRefreshTriggers();
   onDatesChange();
+}
+
+function dpFsConfirm(){
+  dpFsClose();
 }
 
 function dpFsSetMode(mode){
@@ -3913,6 +3919,8 @@ function dpFsUpdateFooter(){
   const coVal=document.getElementById('dp-fs-co-val');
   const ciBox=document.getElementById('dp-fs-ci-box');
   const coBox=document.getElementById('dp-fs-co-box');
+  const nightsEl=document.getElementById('dp-fs-nights');
+  const confirmBtn=document.getElementById('dp-fs-confirm-btn');
   if(ciVal){
     if(DPF.ci){ciVal.textContent=fmtDate(DPF.ci);ciVal.classList.remove('fs-empty-val');}
     else{ciVal.textContent='Select date';ciVal.classList.add('fs-empty-val');}
@@ -3923,6 +3931,20 @@ function dpFsUpdateFooter(){
   }
   if(ciBox)ciBox.classList.toggle('fs-active',DPF.mode==='ci');
   if(coBox)coBox.classList.toggle('fs-active',DPF.mode==='co');
+  // Nights count
+  if(nightsEl){
+    if(DPF.ci&&DPF.co){
+      const n=Math.max(0,Math.round((new Date(DPF.co+'T12:00:00')-new Date(DPF.ci+'T12:00:00'))/86400000));
+      nightsEl.textContent=`${n} night${n!==1?'s':''}`;
+    }else{
+      nightsEl.textContent='';
+    }
+  }
+  // Enable confirm only when check-in is set
+  if(confirmBtn){
+    confirmBtn.disabled=!DPF.ci;
+    confirmBtn.style.opacity=DPF.ci?'1':'0.5';
+  }
 }
 
 function dpFsSelectDay(dateStr){
@@ -3938,16 +3960,9 @@ function dpFsSelectDay(dateStr){
       DPF.mode='ci';
     }
   }
-  // Save immediately to hidden inputs so they're always in sync
-  document.getElementById('f-checkin').value=DPF.ci||'';
-  document.getElementById('f-checkout').value=DPF.co||'';
   dpFsApplyClasses();
   dpFsUpdateFooter();
   dpFsUpdateTitle();
-  // Auto-close with brief visual delay when both dates set
-  if(DPF.ci&&DPF.co){
-    setTimeout(()=>{dpFsClose();},500);
-  }
 }
 
 function dpFsRender(){
