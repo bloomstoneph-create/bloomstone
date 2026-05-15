@@ -794,7 +794,8 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .cal-view-tab{padding:4px 8px;font-size:11px}
   .month-grid{gap:0;border-radius:var(--radius);border:1px solid var(--border);background:var(--border)}
   .month-day-name{padding:5px 2px;font-size:9px;letter-spacing:0}
-  .month-cell{min-height:0;height:calc((100vw - 28px) / 7 * 1.15);padding:3px 2px;overflow:hidden}
+  /* Cells grow with content — no fixed height, no cropping */
+  .month-cell{min-height:calc((100vw - 28px) / 7 * 0.9);height:auto;padding:3px 2px;overflow:visible}
   .month-cell-num{font-size:10px;margin-bottom:1px;font-weight:700}
   .month-cell.today .month-cell-num{width:18px;height:18px;font-size:10px}
   .cal-event-bar{height:13px;line-height:13px;font-size:8px;padding:0 3px;margin-bottom:1px}

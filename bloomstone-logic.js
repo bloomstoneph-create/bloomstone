@@ -3474,29 +3474,9 @@ function wireSheetsButtons(){
   });
 }
 
-// ── Store Sales pending notification ─────────────────────────
+// ── Store Sales pending notification — disabled ───────────────
 function checkPendingStoreSales(){
-  const today=todayISO();
-  const needsStore=bookings.filter(b=>
-    b.status!=='Cancelled'&&b.checkout&&b.checkout<today&&
-    (!b.storeSales||+b.storeSales===0)
-  );
-  const needsCleaning=bookings.filter(b=>
-    b.status!=='Cancelled'&&b.checkout&&b.checkout<today&&
-    (b.cleaningFee===undefined||b.cleaningFee===null||+b.cleaningFee===0)
-  );
-  if(needsStore.length){
-    const names=needsStore.slice(0,3).map(b=>b.guest).join(', ');
-    const more=needsStore.length>3?` +${needsStore.length-3} more`:'';
-    toast(`🛍️ ${needsStore.length} checked-out booking${needsStore.length>1?'s':''} need Store Sales recorded: ${names}${more}. Enter 0 if no sales.`,'warning',8000);
-  }
-  if(needsCleaning.length){
-    const names=needsCleaning.slice(0,3).map(b=>b.guest).join(', ');
-    const more=needsCleaning.length>3?` +${needsCleaning.length-3} more`:'';
-    setTimeout(()=>{
-      toast(`🧹 ${needsCleaning.length} checked-out booking${needsCleaning.length>1?'s':''} need Cleaning Fee recorded: ${names}${more}. Enter 0 if no cleaning cost.`,'warning',8000);
-    },1000); // slight delay so toasts don't stack at the same instant
-  }
+  // Notifications removed — no longer shown on login
 }
 
 // ============================================================
