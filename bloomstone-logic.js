@@ -39,18 +39,22 @@ function tryLogin(username,password){
 
 function startSession(user){
   currentUser={id:user.id,name:user.name,username:user.username,role:user.role};
-  sessionStorage.setItem(LS_SESSION,JSON.stringify(currentUser));
+  // localStorage keeps session after app close, phone restart, PWA reopen
+  localStorage.setItem(LS_SESSION,JSON.stringify(currentUser));
 }
 
 function endSession(){
   currentUser=null;
-  sessionStorage.removeItem(LS_SESSION);
+  localStorage.removeItem(LS_SESSION);
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('app').style.display='none';
 }
 
 function resumeSession(){
-  try{const s=sessionStorage.getItem(LS_SESSION);if(s){currentUser=JSON.parse(s);return true;}}catch(e){}
+  try{
+    const s=localStorage.getItem(LS_SESSION);
+    if(s){currentUser=JSON.parse(s);return true;}
+  }catch(e){}
   return false;
 }
 

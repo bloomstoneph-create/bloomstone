@@ -2,17 +2,17 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Bloomstone PMS</title>
 
 <!-- ── PWA: installable on iPhone & desktop ────────────── -->
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#1a1a1a"/>
+<meta name="theme-color" content="#ffffff"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 
 <!-- iPhone / iPad specific -->
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Bloomstone"/>
 <link rel="apple-touch-icon" href="icon.svg"/>
 
@@ -137,9 +137,6 @@ a{color:inherit;text-decoration:none}
   height:var(--topbar-h);border-bottom:1px solid var(--border);
   background:var(--surface);display:flex;align-items:center;
   padding:0 20px;gap:12px;flex-shrink:0;
-  /* iPhone notch/status bar safe area */
-  padding-top:env(safe-area-inset-top);
-  height:calc(var(--topbar-h) + env(safe-area-inset-top));
 }
 .topbar-title{font-size:15px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .topbar-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
@@ -763,7 +760,7 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .drawer{width:100%!important;top:auto;height:92vh;border-radius:var(--radius-xl) var(--radius-xl) 0 0;border-left:none;border-top:1px solid var(--border);transform:translateY(100%)}
   .drawer.open{transform:translateY(0)}
   .drawer-overlay.open{display:block}
-  .topbar{padding:0 12px;gap:8px;padding-top:env(safe-area-inset-top);height:calc(var(--topbar-h) + env(safe-area-inset-top))}
+  .topbar{padding:0 12px;gap:8px}
   .topbar .topbar-title{font-size:14px}
   /* Hide desktop-only topbar buttons on mobile */
   #excelLoadBtn,#excelSaveBtn,#logoutBtn,#dailyBriefBtn{display:none!important}
