@@ -1591,10 +1591,12 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     </div>
 
     <!-- ── CHECK-IN ───────────────────────────────────────────── -->
-    <div class="form-sec">📥 Check-In</div>
-    <div class="field" style="margin-bottom:14px">
-      <label class="label">Security Deposit Collected (₱) <span style="color:var(--text-3);font-size:10px">entering amount = collected</span></label>
-      <input class="input" id="f-deposit" type="number" value="0" style="font-weight:700" oninput="calcFinancials()"/>
+    <div style="background:var(--green-bg,rgba(16,185,129,.07));border:1.5px solid var(--green,#10b981);border-radius:var(--radius-lg);padding:12px 14px 10px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--green,#10b981);margin-bottom:10px;display:flex;align-items:center;gap:6px">📥 Check-In</div>
+      <div class="field" style="margin-bottom:0">
+        <label class="label">Security Deposit Collected (₱) <span style="color:var(--text-3);font-size:10px">entering amount = collected</span></label>
+        <input class="input" id="f-deposit" type="number" value="0" style="font-weight:700" oninput="calcFinancials()"/>
+      </div>
     </div>
 
     <!-- ── CHECK-OUT ──────────────────────────────────────────── -->
