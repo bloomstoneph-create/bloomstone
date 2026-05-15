@@ -703,16 +703,6 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
 }
 .fab:hover{transform:scale(1.08);opacity:.88}
 @media(max-width:767px){.fab{bottom:72px;right:16px;width:48px;height:48px;font-size:23px}}
-.recent-fab-btn{
-  position:fixed;bottom:90px;right:28px;z-index:200;
-  width:40px;height:40px;border-radius:50%;
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;color:var(--text-2);
-}
-.recent-fab-btn:hover{background:var(--surface-3)}
-@media(max-width:767px){.recent-fab-btn{bottom:134px;right:16px;}}
 
 /* ============================================================
    LOGIN OVERLAY
@@ -839,9 +829,6 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .exp-amounts{grid-template-columns:1fr 1fr}
   /* Hide floating FABs on mobile — bottom nav handles these */
   .fab{display:none!important}
-  .recent-fab-btn{display:none!important}
-  /* Recent panel appears above bottom nav */
-  #recentBookingsPanel{bottom:calc(70px + env(safe-area-inset-bottom))!important;right:8px!important;left:8px!important;width:auto!important}
   /* Mobile nav safe area */
   .mobile-nav{padding-bottom:env(safe-area-inset-bottom)}
 }
@@ -1260,16 +1247,6 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
 
   <!-- FLOATING ADD BOOKING BUTTON -->
   <button class="fab" id="fabAddBooking" title="Add Booking">＋</button>
-  <!-- Recent bookings toggle button -->
-  <button onclick="toggleRecentPanel()" title="Recent Bookings" class="recent-fab-btn">📋</button>
-  <!-- Recent Bookings Panel -->
-  <div id="recentBookingsPanel" style="display:none;position:fixed;bottom:184px;right:20px;width:300px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:199;max-height:360px;overflow:hidden">
-    <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;background:var(--surface-2)">
-      <span>Recent Bookings</span>
-      <button onclick="closeRecentPanel()" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:16px;line-height:1">×</button>
-    </div>
-    <div id="recentBookingsList" style="overflow-y:auto;max-height:320px"></div>
-  </div>
 
   <!-- MOBILE BOTTOM NAV -->
   <nav class="mobile-nav" id="mobileNav">
@@ -1283,9 +1260,9 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
         <span class="nav-icon" style="width:44px;height:44px;background:var(--text);color:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 12px rgba(0,0,0,.25)">＋</span>
         Booking
       </button>
-      <!-- Recent Bookings -->
-      <button class="mobile-nav-btn" onclick="toggleRecentPanel()">
-        <span class="nav-icon">📋</span>Recent
+      <!-- Daily Brief -->
+      <button class="mobile-nav-btn" onclick="openDailyBrief()">
+        <span class="nav-icon">☀️</span>Brief
       </button>
     </div>
   </nav>
