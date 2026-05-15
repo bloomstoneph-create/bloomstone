@@ -192,7 +192,7 @@ function loadFromExcel(){
           const newBks=rows.map(r=>({
             id:r.ID||genId(),guest:r.Guest||'',checkin:r['Check-in']||'',checkout:r['Check-out']||'',
             platform:r.Platform||'',property:properties.find(p=>p.name===r.Property)?.id||r.Property||'',
-            rate:+r.Rate||0,promo:+r.Promo||0,bookingFee:+r['Booking Fee']||0,
+            rate:+r.Rate||0,promo:+r.Promo||0,specialOffer:+r['Special Offer']||0,bookingFee:+r['Booking Fee']||0,
             storeSales:+r['Store Sales']||0,deposit:+r.Deposit||0,
             depositCollected:r['Dep Collected']==='Yes',depositRefunded:r['Dep Refunded']==='Yes',
             payment:r.Payment||'',status:r.Status||'Confirmed',notes:r.Notes||'',guestPrefs:r['Guest Prefs']||'',
@@ -512,6 +512,7 @@ function autoSaveDraft(){
     property:document.getElementById('f-property')?.value||'',
     platform:document.getElementById('f-platform')?.value||'',
     rate:document.getElementById('f-rate')?.value||'',
+    specialOffer:document.getElementById('f-specialoffer')?.value||'0',
     notes:document.getElementById('f-notes')?.value||'',
     updatedAt:new Date().toISOString()
   };
@@ -540,6 +541,7 @@ function openDraftInDrawer(draftId){
   if(draft.property)document.getElementById('f-property').value=draft.property;
   if(draft.platform)setPlatPickerValue(draft.platform);
   if(draft.rate)document.getElementById('f-rate').value=draft.rate;
+  if(draft.specialOffer)document.getElementById('f-specialoffer').value=draft.specialOffer;
   if(draft.notes)document.getElementById('f-notes').value=draft.notes;
   onPropertyChange();calcFinancials();
   renderGuestProfile(draft.guest||'');
@@ -560,7 +562,8 @@ function printBooking(){
   const fStatus=document.getElementById('f-status')?.value||'';
   const fNotes=document.getElementById('f-notes')?.value||'';
   const fDeposit=+document.getElementById('f-deposit')?.value||0;
-  const bTemp={checkin:fCI,checkout:fCO,rate:fRate,promo:fPromo,serviceFee:fSvc,platform:fPlatform,property:fProp,extraGuests:0,storeSales:0,adjustments:_currentAdjustments};
+  const fSpecialOffer=+document.getElementById('f-specialoffer')?.value||0;
+  const bTemp={checkin:fCI,checkout:fCO,rate:fRate,promo:fPromo,specialOffer:fSpecialOffer,serviceFee:fSvc,platform:fPlatform,property:fProp,extraGuests:0,storeSales:0,adjustments:_currentAdjustments};
   const t=calcTotals(bTemp);
   const propObj=properties.find(p=>p.id===fProp);
   const propDisplay=propObj?propObj.name:fProp;
@@ -604,7 +607,8 @@ function printBooking(){
     <div class="section-title" style="color:#1a56db">Guest Invoice</div>
     <table>
       <tr><td>Accommodation <span style="color:#999;font-size:11px">${t.nights} night${t.nights!==1?'s':''} × ${fmtMoney(fRate)}</span></td><td>${fmtMoney(t.bkFee)}</td></tr>
-      ${t.promoTotal?`<tr><td style='color:#555'>Special Offer / Promo</td><td style='color:#6d28d9'>−${fmtMoney(t.promoTotal)}</td></tr>`:''}
+      ${t.promoTotal?`<tr><td style='color:#555'>Promo / Discount</td><td style='color:#6d28d9'>−${fmtMoney(t.promoTotal)}</td></tr>`:''}
+      ${t.specialOffer?`<tr><td style='color:#555'>Special Offer (Platform)</td><td style='color:#6d28d9'>−${fmtMoney(t.specialOffer)}</td></tr>`:''}
       ${t.extraFee?`<tr><td style="color:#555">Extra Guest Fee</td><td>+${fmtMoney(t.extraFee)}</td></tr>`:''}
       ${adjRows}
       <tr class="total-row"><td>Total Charged to Guest</td><td>${fmtMoney(t.guestTotal)}</td></tr>
@@ -658,8 +662,9 @@ function calcTotals(b){
   const rate=+b.rate||0;
   const promo=+b.promo||0;
   const bkFee=rate*nights;                        // accommodation: nights × rate
-  const promoTotal=promo*nights;                   // special offer discount
-  const stayFee=Math.max(0,bkFee-promoTotal);     // accommodation after discount
+  const promoTotal=promo*nights;                   // direct booking promo discount (per night × nights)
+  const specialOffer=+b.specialOffer||0;           // platform special offer (flat total from platform)
+  const stayFee=Math.max(0,bkFee-promoTotal-specialOffer); // accommodation after discounts
   const prop=properties.find(p=>p.id===b.property);
   const feePerG=prop?(+prop.extraGuestFee??300):300;
   const baseG=prop?(+prop.baseGuests||2):2;
@@ -679,7 +684,7 @@ function calcTotals(b){
   const storeSales=+b.storeSales||0;               // store/add-on income
   // ── Net Revenue to owner ──
   const netRevenue=guestTotal-svcFee-platFee-cleaningFee+storeSales;
-  return{nights,rate,promo,promoTotal,stayFee,bkFee,extraFee,svcFee,platFee,
+  return{nights,rate,promo,promoTotal,specialOffer,stayFee,bkFee,extraFee,svcFee,platFee,
          guestTotal,cleaningFee,storeSales,netRevenue,
          extraG,comm,vat,feePerG,baseG,maxG,adjTotal};
 }
@@ -1086,7 +1091,7 @@ function openBookingDrawer(id=null){
   ['f-checkin','f-checkout','f-guest','f-rate','f-notes'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=''});
   dpSyncFromHidden(); // reset date picker triggers to blank
   // promo + servicefee intentionally left blank so yellow highlight prompts user
-  ['f-promo','f-servicefee'].forEach(k=>{const el=document.getElementById(k);if(el){el.value='';el.classList.remove('error');}});
+  ['f-promo','f-servicefee','f-specialoffer'].forEach(k=>{const el=document.getElementById(k);if(el){el.value='';el.classList.remove('error');}});
   ['f-store','f-cleaning','f-extraguests'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=0;});
   document.getElementById('f-deposit').value=1000;
   _currentAdjustments=[];
@@ -1111,6 +1116,8 @@ function openBookingDrawer(id=null){
       document.getElementById('f-rate').value=b.rate??'';
       const promoEl=document.getElementById('f-promo');
       if(promoEl){promoEl.value=b.promo??0;promoEl.classList.remove('error');}
+      const soEl=document.getElementById('f-specialoffer');
+      if(soEl){soEl.value=b.specialOffer??0;soEl.classList.remove('error');}
       // bookingFee auto-calculated
       const svcEl=document.getElementById('f-servicefee');
       if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');}
@@ -1353,6 +1360,7 @@ function calcFinancials(){
     checkout:document.getElementById('f-checkout')?.value||'',
     rate:document.getElementById('f-rate')?.value||0,
     promo:document.getElementById('f-promo')?.value||0,
+    specialOffer:document.getElementById('f-specialoffer')?.value||0,
     serviceFee:document.getElementById('f-servicefee')?.value||0,
     platform:document.getElementById('f-platform')?.value||'',
     property:pid,
@@ -1373,6 +1381,7 @@ function calcFinancials(){
   _set('s-promo',t.promoTotal?`−${fmtMoney(t.promoTotal)}`:'—','var(--purple)');
   const promoSubLbl=document.getElementById('s-promo-sublabel');
   if(promoSubLbl)promoSubLbl.textContent=(t.promo&&t.nights>1)?`${t.nights} nights × ${C()}${(+b.promo||0).toLocaleString()}`:'';
+  _set('s-specialoffer',t.specialOffer?`−${fmtMoney(t.specialOffer)}`:'—','var(--purple)');
   _set('s-extra',t.extraFee?`+${fmtMoney(t.extraFee)}`:'—','var(--text-2)');
   _set('s-adj',t.adjTotal?`${t.adjTotal>=0?'+':''} ${fmtMoney(Math.abs(t.adjTotal))}`:'—','var(--text-2)');
   _set('s-guest-total',fmtMoney(t.guestTotal),'var(--text)');
@@ -1416,6 +1425,7 @@ function _buildBookingFromForm(existing){
     property:document.getElementById('f-property').value,
     rate:+document.getElementById('f-rate').value||0,
     promo:+document.getElementById('f-promo').value||0,
+    specialOffer:+document.getElementById('f-specialoffer').value||0,
     bookingFee:0, // will be recalculated below from calcTotals
     serviceFee:+document.getElementById('f-servicefee').value||0,
     extraGuests:+document.getElementById('f-extraguests').value||0,
@@ -1461,6 +1471,7 @@ function _buildChangeDiff(orig,bk){
     {label:'Payment',     o:orig.payment,        n:bk.payment},
     {label:'Rate',        o:fmtM(orig.rate),     n:fmtM(bk.rate)},
     {label:'Promo',       o:fmtM(orig.promo),    n:fmtM(bk.promo)},
+    {label:'Special Offer',o:fmtM(orig.specialOffer),n:fmtM(bk.specialOffer)},
     {label:'Service Fee', o:fmtM(orig.serviceFee),n:fmtM(bk.serviceFee)},
     {label:'Cleaning',    o:fmtM(orig.cleaningFee),n:fmtM(bk.cleaningFee)},
     {label:'Deposit',     o:fmtM(orig.deposit),  n:fmtM(bk.deposit)},
@@ -2872,7 +2883,7 @@ function openDailyBrief(){
           <div style="font-weight:700;font-size:13px">${esc(d.guest)}</div>
           <div style="font-size:11px;color:var(--text-3)">${propStr} \u00b7 ${dateStr}</div>
         </div>
-        <button onclick="deleteDraft('${d.id}');openDailyBrief()" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:15px;padding:2px 6px;border-radius:var(--radius-sm)" title="Discard draft">\ud83d\uddd1</button>
+        <button onclick="confirmDialog('Discard Draft','Discard the draft for \u201c${esc(d.guest)}\u201d? This cannot be undone.','\ud83d\uddd1',()=>{deleteDraft('${d.id}');openDailyBrief();},'Discard')" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:15px;padding:2px 6px;border-radius:var(--radius-sm)" title="Discard draft">\ud83d\uddd1</button>
         <button onclick="openDraftInDrawer('${d.id}')" style="background:var(--orange);color:#fff;border:none;border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">Open</button>
       </div>`;
     });
@@ -3282,10 +3293,10 @@ function previewDriveImport(data){
 // ============================================================
 function buildXLSX(){
   const rows=[
-    ['ID','Guest','Check-in','Check-out','Nights','Platform','Property','City','Rate','Promo','Stay Fee','Extra Fee','Booking Fee','Platform Fee','Net Revenue','Store Sales','Deposit','Dep Collected','Dep Refunded','Payment','Status','Notes','Created At'],
+    ['ID','Guest','Check-in','Check-out','Nights','Platform','Property','City','Rate','Promo','Special Offer','Stay Fee','Extra Fee','Booking Fee','Platform Fee','Net Revenue','Store Sales','Deposit','Dep Collected','Dep Refunded','Payment','Status','Notes','Created At'],
     ...bookings.map(b=>{
       const t=calcTotals(b);
-      return[b.id||'',b.guest||'',b.checkin||'',b.checkout||'',t.nights,b.platform||'',propName(b.property),propCity(b.property),b.rate||0,b.promo||0,t.stayFee.toFixed(2),t.extraFee.toFixed(2),t.bkFee.toFixed(2),t.platFee.toFixed(2),t.netRevenue.toFixed(2),b.storeSales||0,b.deposit||0,b.depositCollected?'Yes':'No',b.depositRefunded?'Yes':'No',b.payment||'',b.status||'',b.notes||'',b.createdAt||''];
+      return[b.id||'',b.guest||'',b.checkin||'',b.checkout||'',t.nights,b.platform||'',propName(b.property),propCity(b.property),b.rate||0,b.promo||0,b.specialOffer||0,t.stayFee.toFixed(2),t.extraFee.toFixed(2),t.bkFee.toFixed(2),t.platFee.toFixed(2),t.netRevenue.toFixed(2),b.storeSales||0,b.deposit||0,b.depositCollected?'Yes':'No',b.depositRefunded?'Yes':'No',b.payment||'',b.status||'',b.notes||'',b.createdAt||''];
     })
   ];
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -3468,7 +3479,7 @@ async function sheetsPush(silent=false){
         return{
           ID:b.id,Guest:b.guest,'Check-in':fmtDate(b.checkin),'Check-out':fmtDate(b.checkout),
           Nights:t.nights,Platform:b.platform,Property:propName(b.property),
-          Rate:b.rate||0,Promo:b.promo||0,'Booking Fee':t.bkFee,'Service Fee':b.serviceFee||0,
+          Rate:b.rate||0,Promo:b.promo||0,'Special Offer':b.specialOffer||0,'Booking Fee':t.bkFee,'Service Fee':b.serviceFee||0,
           'Platform Commission':b.platformCommission??t.platFee,
           'Extra Guests':b.extraGuests??t.extraG,
           'Extra Guest Fee':b.extraGuestFee??t.extraFee,
@@ -3599,7 +3610,7 @@ function applySheetsPullData(data){
       checkin:isoDate(r['Check-in']),checkout:isoDate(r['Check-out']),
       platform:r.Platform||'',
       property:properties.find(p=>p.name===r.Property)?.id||r.Property||'',
-      rate:+r.Rate||0,promo:+r.Promo||0,bookingFee:+r['Booking Fee']||0,serviceFee:+r['Service Fee']||0,
+      rate:+r.Rate||0,promo:+r.Promo||0,specialOffer:+r['Special Offer']||0,bookingFee:+r['Booking Fee']||0,serviceFee:+r['Service Fee']||0,
       platformCommission:+r['Platform Commission']||0,
       extraGuests:+r['Extra Guests']||0,
       extraGuestFee:+r['Extra Guest Fee']||0,

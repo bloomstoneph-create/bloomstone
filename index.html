@@ -1466,9 +1466,9 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     </div>
 
     <!-- ── PROMO + SERVICE FEE inputs (above breakdown) ──────── -->
-    <div class="field-row" style="margin-bottom:12px">
+    <div class="field-row" style="margin-bottom:8px">
       <div class="field">
-        <label class="label">Promo / Discount <span class="req">*</span> <span style="color:var(--text-3);font-size:10px">(₱ per night · enter 0 if none)</span></label>
+        <label class="label">Promo / Discount <span class="req">*</span> <span style="color:var(--text-3);font-size:10px">(₱ per night · direct bookings)</span></label>
         <input class="input input-req" id="f-promo" type="number" placeholder="Enter 0 if none"
                oninput="this.classList.remove('error');calcFinancials()"/>
       </div>
@@ -1477,6 +1477,11 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
         <input class="input input-req" id="f-servicefee" type="number" placeholder="Enter 0 if none"
                oninput="this.classList.remove('error');calcFinancials()"/>
       </div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label class="label">Special Offer <span style="color:var(--text-3);font-size:10px">(₱ total · platform discount · enter 0 if none)</span></label>
+      <input class="input" id="f-specialoffer" type="number" placeholder="Enter 0 if none"
+             oninput="calcFinancials()"/>
     </div>
 
     <!-- ── FINANCIAL BREAKDOWN (live, 2 sections) ──────────────── -->
@@ -1508,6 +1513,12 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
             <div id="s-promo-sublabel" style="font-size:10px;color:var(--text-3);margin-top:1px"></div>
           </div>
           <span id="s-promo" style="color:var(--purple);font-weight:700;white-space:nowrap">—</span>
+        </div>
+
+        <!-- Special Offer (Platform) -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:4px 0;font-size:12px">
+          <span style="color:var(--text-2)">Special Offer (Platform)</span>
+          <span id="s-specialoffer" style="color:var(--purple);font-weight:700;white-space:nowrap">—</span>
         </div>
 
         <!-- Extra Guest Fee -->
