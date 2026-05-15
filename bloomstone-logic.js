@@ -3595,11 +3595,17 @@ function dpOpen(mode){
   dpRender();
   dpPosition(document.getElementById(mode==='ci'?'dp-ci-btn':'dp-co-btn'));
   document.getElementById('bsDatePicker').style.display='block';
+  if(window.innerWidth<=600)document.getElementById('dpBackdrop').style.display='block';
   DP.open=true;
 }
 
 function dpPosition(triggerEl){
   const popup=document.getElementById('bsDatePicker');
+  // On mobile: CSS handles positioning as a bottom sheet
+  if(window.innerWidth<=600){
+    popup.style.top='';popup.style.left='';popup.style.bottom='';
+    return;
+  }
   popup.style.display='block'; // need it visible to measure
   const rect=triggerEl.getBoundingClientRect();
   const vw=window.innerWidth;
@@ -3619,6 +3625,7 @@ function dpPosition(triggerEl){
 function dpClose(){
   if(!DP.open)return;
   document.getElementById('bsDatePicker').style.display='none';
+  document.getElementById('dpBackdrop').style.display='none';
   document.getElementById('dp-ci-btn').classList.remove('active-pick');
   document.getElementById('dp-co-btn').classList.remove('active-pick');
   DP.open=false;DP.hover=null;
