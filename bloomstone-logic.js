@@ -997,6 +997,7 @@ function openBookingDrawer(id=null){
   document.getElementById('drawerSaveBtn').textContent=isNew?'\u2713 Save Booking':'\u270e Update Booking';
   document.getElementById('drawerCancelBtn').textContent='Cancel';
   ['f-checkin','f-checkout','f-guest','f-rate','f-notes'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=''});
+  dpSyncFromHidden(); // reset date picker triggers to blank
   // promo + servicefee intentionally left blank so yellow highlight prompts user
   ['f-promo','f-servicefee'].forEach(k=>{const el=document.getElementById(k);if(el){el.value='';el.classList.remove('error');}});
   ['f-store','f-cleaning','f-extraguests'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=0;});
@@ -1016,6 +1017,7 @@ function openBookingDrawer(id=null){
     if(b){
       document.getElementById('f-checkin').value=b.checkin||'';
       document.getElementById('f-checkout').value=b.checkout||'';
+      dpSyncFromHidden(); // update date picker trigger display
       document.getElementById('f-guest').value=b.guest||'';
       setPlatPickerValue(b.platform||'');
       document.getElementById('f-property').value=b.property||'';
@@ -1398,7 +1400,12 @@ function saveBooking(){
     const el=document.getElementById(id);
     const val=id==='f-platform'?el?.value:(el?.value||'');
     const empty=!val||!String(val).trim();
-    if(empty){el?.classList.add('error');missing.push(label);}else el?.classList.remove('error');
+    // For date fields, show error on the visible trigger button (hidden input isn't visible)
+    const errEl=id==='f-checkin'?document.getElementById('dp-ci-btn')
+               :id==='f-checkout'?document.getElementById('dp-co-btn')
+               :el;
+    if(empty){errEl?.classList.add('error');el?.classList.add('error');missing.push(label);}
+    else{errEl?.classList.remove('error');el?.classList.remove('error');}
   });
   REQUIRED_NUMBER_FIELDS.forEach(({id,label})=>{
     const el=document.getElementById(id);
@@ -1656,6 +1663,7 @@ function openDayModal(dateStr){
     document.getElementById('f-checkin').value=dateStr;
     const nd=new Date(dateStr+'T12:00:00');nd.setDate(nd.getDate()+1);
     document.getElementById('f-checkout').value=dateToISO(nd);
+    dpSyncFromHidden();
     if(propId!=='all')document.getElementById('f-property').value=propId;
     onDatesChange();onPropertyChange();
   };
@@ -1791,7 +1799,7 @@ function renderTimelineCal(body,y,m,shown){
       const nd=new Date(cell.dataset.date+'T12:00:00');nd.setDate(nd.getDate()+1);
       document.getElementById('f-checkout').value=dateToISO(nd);
       document.getElementById('f-property').value=cell.dataset.prop;
-      openBookingDrawer();onDatesChange();onPropertyChange();
+      openBookingDrawer();dpSyncFromHidden();onDatesChange();onPropertyChange();
     });
   });
 }
@@ -3498,6 +3506,7 @@ function init(){
   document.querySelector('.ws-btn[data-ws="today"]')?.classList.add('active');
   const savedTheme=localStorage.getItem('bloomstone_theme')||'light';
   setTheme(savedTheme);
+  dpInit(); // initialize date picker view state
   populateSelects();
   renderToday();
   renderCalPropPills();
@@ -3511,6 +3520,248 @@ function init(){
   // Auto Drive backup
   setTimeout(()=>driveAutoBackup(),2000);
 }
+
+// ============================================================
+// PWA INSTALL PROMPT
+// ============================================================
+let _pwaPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = '';
+});
+
+window.addEventListener('appinstalled', () => {
+  _pwaPrompt = null;
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'none';
+  toast('Bloomstone installed as app!', 'success');
+});
+
+function pwaInstall() {
+  if (!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      _pwaPrompt = null;
+      const btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'none';
+    }
+  });
+}
+
+// ============================================================
+// TRIP.COM STYLE DATE PICKER
+// ============================================================
+const DP={
+  open:false,
+  mode:'ci',       // 'ci' | 'co'
+  ci:null,         // selected check-in ISO string
+  co:null,         // selected check-out ISO string
+  hover:null,      // hovered date ISO string (for range preview)
+  vy:0,            // view year (left month)
+  vm:0             // view month 0-11 (left month)
+};
+
+function dpInit(){
+  const t=new Date();DP.vy=t.getFullYear();DP.vm=t.getMonth();
+}
+
+function dpOpen(mode){
+  DP.mode=mode;
+  // Sync current values from hidden inputs
+  DP.ci=document.getElementById('f-checkin').value||null;
+  DP.co=document.getElementById('f-checkout').value||null;
+  DP.hover=null;
+  // Mark active trigger
+  document.getElementById('dp-ci-btn').classList.toggle('active-pick',mode==='ci');
+  document.getElementById('dp-co-btn').classList.toggle('active-pick',mode==='co');
+  // Set view to show the relevant month
+  const ref=DP.ci?new Date(DP.ci+'T12:00:00'):new Date();
+  DP.vy=ref.getFullYear();DP.vm=ref.getMonth();
+  // If editing co and checkout is in a later month, show that month on left
+  if(mode==='co'&&DP.co){
+    const coRef=new Date(DP.co+'T12:00:00');
+    DP.vy=coRef.getFullYear();DP.vm=coRef.getMonth();
+    // Back up one month so checkout appears on right
+    DP.vm--;if(DP.vm<0){DP.vm=11;DP.vy--;}
+  }
+  dpRender();
+  dpPosition(document.getElementById(mode==='ci'?'dp-ci-btn':'dp-co-btn'));
+  document.getElementById('bsDatePicker').style.display='block';
+  DP.open=true;
+}
+
+function dpPosition(triggerEl){
+  const popup=document.getElementById('bsDatePicker');
+  popup.style.display='block'; // need it visible to measure
+  const rect=triggerEl.getBoundingClientRect();
+  const vw=window.innerWidth;
+  const vh=window.innerHeight;
+  const pw=Math.max(popup.offsetWidth,520);
+  const ph=popup.offsetHeight||360;
+  let top=rect.bottom+6;
+  let left=rect.left;
+  if(left+pw>vw-12)left=vw-pw-12;
+  if(left<8)left=8;
+  if(top+ph>vh-12)top=Math.max(8,rect.top-ph-6);
+  popup.style.top=top+'px';
+  popup.style.left=left+'px';
+  popup.style.display=''; // let CSS class control
+}
+
+function dpClose(){
+  if(!DP.open)return;
+  document.getElementById('bsDatePicker').style.display='none';
+  document.getElementById('dp-ci-btn').classList.remove('active-pick');
+  document.getElementById('dp-co-btn').classList.remove('active-pick');
+  DP.open=false;DP.hover=null;
+}
+
+function dpClearAll(){
+  DP.ci=null;DP.co=null;DP.hover=null;
+  document.getElementById('f-checkin').value='';
+  document.getElementById('f-checkout').value='';
+  dpRefreshTriggers();dpRender();
+  onDatesChange();
+  DP.mode='ci';dpUpdateHint();
+}
+
+function dpClearOne(which){
+  if(which==='ci'){DP.ci=null;document.getElementById('f-checkin').value='';}
+  else{DP.co=null;document.getElementById('f-checkout').value='';}
+  dpRefreshTriggers();dpRender();
+  onDatesChange();
+}
+
+function dpPrevMonth(){
+  DP.vm--;if(DP.vm<0){DP.vm=11;DP.vy--;}dpRender();
+}
+function dpNextMonth(){
+  DP.vm++;if(DP.vm>11){DP.vm=0;DP.vy++;}dpRender();
+}
+
+function dpSelectDay(dateStr){
+  if(DP.mode==='ci'){
+    DP.ci=dateStr;
+    // Clear checkout if it's before/same as new checkin
+    if(DP.co&&DP.co<=DP.ci)DP.co=null;
+    DP.mode='co';
+  }else{
+    if(DP.ci&&dateStr<=DP.ci){
+      // Clicked before checkin — restart as checkin
+      DP.ci=dateStr;DP.co=null;DP.mode='co';
+    }else{
+      DP.co=dateStr;
+      DP.mode='ci';
+    }
+  }
+  document.getElementById('f-checkin').value=DP.ci||'';
+  document.getElementById('f-checkout').value=DP.co||'';
+  // Clear validation errors when dates are filled
+  if(DP.ci)document.getElementById('dp-ci-btn')?.classList.remove('error');
+  if(DP.co)document.getElementById('dp-co-btn')?.classList.remove('error');
+  dpRefreshTriggers();dpRender();
+  onDatesChange();
+  // Mark active trigger
+  document.getElementById('dp-ci-btn').classList.toggle('active-pick',DP.mode==='ci');
+  document.getElementById('dp-co-btn').classList.toggle('active-pick',DP.mode==='co');
+  // Auto-close when both set
+  if(DP.ci&&DP.co)setTimeout(dpClose,260);
+}
+
+function dpHover(dateStr){
+  if(DP.mode==='co'&&DP.ci&&dateStr>DP.ci){
+    if(DP.hover===dateStr)return; // no change needed
+    DP.hover=dateStr;dpRender();
+  }
+}
+function dpLeave(){
+  if(DP.hover){DP.hover=null;dpRender();}
+}
+
+function dpRefreshTriggers(){
+  const ciBtn=document.getElementById('dp-ci-btn');
+  const coBtn=document.getElementById('dp-co-btn');
+  const ciTxt=document.getElementById('dp-ci-text');
+  const coTxt=document.getElementById('dp-co-text');
+  if(DP.ci){ciTxt.textContent=fmtDate(DP.ci);ciBtn.classList.add('has-value');}
+  else{ciTxt.textContent='Select date';ciBtn.classList.remove('has-value');}
+  if(DP.co){coTxt.textContent=fmtDate(DP.co);coBtn.classList.add('has-value');}
+  else{coTxt.textContent='Select date';coBtn.classList.remove('has-value');}
+}
+
+function dpSyncFromHidden(){
+  DP.ci=document.getElementById('f-checkin').value||null;
+  DP.co=document.getElementById('f-checkout').value||null;
+  dpRefreshTriggers();
+}
+
+function dpUpdateHint(){
+  const h=document.getElementById('dp-hint');if(!h)return;
+  if(DP.ci&&DP.co){
+    const n=nightsBetween(DP.ci,DP.co);
+    h.textContent=`${fmtDate(DP.ci)} → ${fmtDate(DP.co)}  ·  ${n} night${n!==1?'s':''}`;
+  }else if(DP.mode==='co'&&DP.ci){
+    h.textContent='Now pick your check-out date';
+  }else{
+    h.textContent='Pick your check-in date';
+  }
+}
+
+function dpRenderMonth(elId,year,month){
+  const el=document.getElementById(elId);if(!el)return;
+  const WD=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const MNAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const today=todayISO();
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMo=new Date(year,month+1,0).getDate();
+  const effectiveEnd=DP.co||(DP.mode==='co'&&DP.hover&&DP.hover>(DP.ci||'')?DP.hover:null);
+
+  let h=`<div class="dp-month-hdr">${MNAMES[month]} ${year}</div>`;
+  h+=`<div class="dp-weekdays">${WD.map(d=>`<div class="dp-wd">${d}</div>`).join('')}</div>`;
+  h+=`<div class="dp-days">`;
+  // Empty leading cells
+  for(let i=0;i<firstDay;i++)h+=`<button class="dp-day dp-empty" disabled></button>`;
+  for(let d=1;d<=daysInMo;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='dp-day';
+    if(ds<today)cls+=' dp-past';
+    if(ds===today)cls+=' dp-today';
+    const isCI=ds===DP.ci;
+    const isCO=ds===DP.co||(DP.mode==='co'&&ds===DP.hover&&ds>(DP.ci||''));
+    const inRange=DP.ci&&effectiveEnd&&ds>DP.ci&&ds<effectiveEnd;
+    if(isCI&&isCO)cls+=' dp-sel';
+    else if(isCI)cls+=' dp-range-start';
+    else if(isCO)cls+=' dp-range-end';
+    else if(inRange)cls+=' dp-in-range';
+    h+=`<button class="${cls}"
+      onclick="dpSelectDay('${ds}')"
+      onmouseenter="dpHover('${ds}')"
+      onmouseleave="dpLeave()"
+      >${d}</button>`;
+  }
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+
+function dpRender(){
+  dpRenderMonth('dp-month-left',DP.vy,DP.vm);
+  let ry=DP.vy,rm=DP.vm+1;if(rm>11){rm=0;ry++;}
+  dpRenderMonth('dp-month-right',ry,rm);
+  dpUpdateHint();
+}
+
+// Close on outside click
+document.addEventListener('click',e=>{
+  if(!DP.open)return;
+  const popup=document.getElementById('bsDatePicker');
+  const ci=document.getElementById('dp-ci-btn');
+  const co=document.getElementById('dp-co-btn');
+  if(popup&&!popup.contains(e.target)&&!ci?.contains(e.target)&&!co?.contains(e.target))dpClose();
+});
 
 // Bootstrap: check session first, show login or app
 (function bootstrap(){

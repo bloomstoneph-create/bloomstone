@@ -2,8 +2,24 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Bloomstone PMS</title>
+
+<!-- ── PWA: installable on iPhone & desktop ────────────── -->
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#1a1a1a"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+
+<!-- iPhone / iPad specific -->
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Bloomstone"/>
+<link rel="apple-touch-icon" href="icon.svg"/>
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="icon.svg"/>
+<!-- ─────────────────────────────────────────────────────── -->
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 /* ============================================================
@@ -218,7 +234,7 @@ a{color:inherit;text-decoration:none}
   transition:border-color var(--transition);min-height:36px;
 }
 .input:focus{outline:none;border-color:var(--text)}
-.input.error{border-color:var(--red);background:var(--red-bg)}
+.input.error,.dp-trigger.error{border-color:var(--red)!important;background:var(--red-bg)!important}
 .input-req{background:var(--yellow-req)!important;border-color:rgba(180,140,0,.25)!important}
 .plat-picker-btn.input-req{background:var(--yellow-req)!important;border-color:rgba(180,140,0,.25)!important}
 .input[readonly]{background:var(--surface-3);color:var(--text-2);cursor:not-allowed}
@@ -291,6 +307,76 @@ a{color:inherit;text-decoration:none}
 .form-sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);padding:14px 0 8px;margin-top:4px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)}
 .form-sec:first-child{border-top:none;padding-top:0;margin-top:0}
 .form-sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ============================================================
+   TRIP-STYLE DATE PICKER
+============================================================ */
+.dp-trigger{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  user-select:none;min-height:44px;padding:10px 12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);transition:border-color var(--transition),background var(--transition);
+  color:var(--text-3);font-size:13px;position:relative;
+}
+.dp-trigger:hover{border-color:var(--text);background:var(--surface-2)}
+.dp-trigger.has-value{color:var(--text);font-weight:600}
+.dp-trigger.active-pick{border-color:var(--text);box-shadow:0 0 0 2px var(--accent-soft)}
+.dp-trigger.input-req{background:var(--yellow-req)!important;border-color:rgba(180,140,0,.25)!important}
+.dp-trigger-icon{font-size:15px;flex-shrink:0}
+.dp-trigger-text{flex:1;font-size:13px}
+.dp-trigger-clear{font-size:11px;color:var(--text-3);padding:1px 4px;border-radius:4px;display:none;cursor:pointer;flex-shrink:0}
+.dp-trigger.has-value .dp-trigger-clear{display:block}
+.dp-trigger.has-value .dp-trigger-clear:hover{background:var(--surface-3);color:var(--text)}
+
+.dp-popup{
+  position:fixed;z-index:9000;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);
+  padding:18px 20px 14px;
+  animation:dpFadeIn .14s ease;
+}
+@keyframes dpFadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+.dp-wrap{display:flex;align-items:flex-start;gap:8px}
+.dp-months{display:flex;gap:28px;flex:1}
+.dp-nav{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:transparent;cursor:pointer;font-size:17px;color:var(--text-2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;
+  transition:background var(--transition),color var(--transition);}
+.dp-nav:hover{background:var(--surface-3);color:var(--text)}
+
+.dp-month-hdr{font-weight:700;font-size:13px;text-align:center;margin-bottom:10px;color:var(--text)}
+.dp-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:3px}
+.dp-wd{font-size:10px;font-weight:600;color:var(--text-3);padding:3px 0}
+.dp-days{display:grid;grid-template-columns:repeat(7,32px);gap:0}
+.dp-day{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--text);
+  border-radius:50%;transition:background .1s,color .1s;position:relative;
+  user-select:none;font-family:inherit;
+}
+.dp-day:hover:not(.dp-empty):not(.dp-past){background:var(--surface-3)}
+.dp-empty{cursor:default;pointer-events:none}
+.dp-past{color:var(--text-3);cursor:not-allowed;opacity:.4}
+.dp-today{font-weight:700}
+.dp-today::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
+  width:3px;height:3px;border-radius:50%;background:var(--accent)}
+.dp-sel{background:var(--accent)!important;color:#fff!important;font-weight:700;border-radius:50%!important}
+.dp-in-range{background:var(--accent-soft);border-radius:0;color:var(--text)}
+.dp-range-start{background:var(--accent)!important;color:#fff!important;border-radius:50% 0 0 50%!important}
+.dp-range-end{background:var(--accent)!important;color:#fff!important;border-radius:0 50% 50% 0!important}
+.dp-range-start.dp-range-end{border-radius:50%!important}
+
+.dp-footer{display:flex;align-items:center;gap:8px;margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
+.dp-hint{flex:1;font-size:11px;color:var(--text-2);font-style:italic}
+
+@media(max-width:600px){
+  .dp-popup{padding:14px 12px 10px;left:8px!important;right:8px!important;width:auto!important}
+  .dp-months{gap:0}
+  .dp-month-right{display:none}
+  .dp-days{grid-template-columns:repeat(7,1fr)}
+  .dp-day{width:100%;height:auto;aspect-ratio:1}
+}
 
 /* ============================================================
    MODALS
@@ -709,6 +795,11 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
       <!-- Nav built by JS -->
     </nav>
     <div class="sidebar-bottom">
+      <!-- Install App button — shown only when browser allows PWA install -->
+      <button class="ws-btn" id="pwaInstallBtn" style="display:none;margin-bottom:4px;color:var(--blue);font-weight:600" onclick="pwaInstall()">
+        <span class="ws-icon">⊕</span>
+        <span class="ws-label">Install App</span>
+      </button>
       <button class="theme-toggle" id="themeToggleBtn">
         <span class="ws-icon" id="themeIcon">☀</span>
         <span id="themeLabel">Light mode</span>
@@ -1141,15 +1232,27 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     <div class="form-sec" style="margin-top:0">📅 Booking</div>
     <div class="alert-bar" id="overlapAlert">⚠ <span id="overlapText"></span></div>
 
-    <!-- Dates row — 2 col, nights hidden but available to JS -->
+    <!-- Dates row — custom trip.com-style pickers -->
     <div class="field-row" style="margin-bottom:4px">
       <div class="field">
         <label class="label">Check-in <span class="req">*</span></label>
-        <input class="input input-req" id="f-checkin" type="date" oninput="onDatesChange()"/>
+        <div class="dp-trigger input-req" id="dp-ci-btn" tabindex="0"
+             onclick="dpOpen('ci')" onkeydown="if(event.key==='Enter'||event.key===' ')dpOpen('ci')">
+          <span class="dp-trigger-icon">📅</span>
+          <span class="dp-trigger-text" id="dp-ci-text">Select date</span>
+          <span class="dp-trigger-clear" onclick="event.stopPropagation();dpClearOne('ci')" title="Clear">✕</span>
+        </div>
+        <input type="hidden" id="f-checkin"/>
       </div>
       <div class="field">
         <label class="label">Check-out <span class="req">*</span></label>
-        <input class="input input-req" id="f-checkout" type="date" oninput="onDatesChange()"/>
+        <div class="dp-trigger input-req" id="dp-co-btn" tabindex="0"
+             onclick="dpOpen('co')" onkeydown="if(event.key==='Enter'||event.key===' ')dpOpen('co')">
+          <span class="dp-trigger-icon">🏁</span>
+          <span class="dp-trigger-text" id="dp-co-text">Select date</span>
+          <span class="dp-trigger-clear" onclick="event.stopPropagation();dpClearOne('co')" title="Clear">✕</span>
+        </div>
+        <input type="hidden" id="f-checkout"/>
       </div>
     </div>
     <input type="hidden" id="f-nights"/>
@@ -1599,7 +1702,35 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
 <!-- TOAST HOST -->
 <div class="toast-host" id="toastHost"></div>
 
+<!-- ── TRIP.COM STYLE DATE PICKER POPUP ────────────────────── -->
+<div id="bsDatePicker" class="dp-popup" style="display:none" onclick="event.stopPropagation()">
+  <div class="dp-wrap">
+    <button class="dp-nav" onclick="dpPrevMonth()" title="Previous month">‹</button>
+    <div class="dp-months">
+      <div id="dp-month-left" class="dp-month-left"></div>
+      <div id="dp-month-right" class="dp-month-right"></div>
+    </div>
+    <button class="dp-nav" onclick="dpNextMonth()" title="Next month">›</button>
+  </div>
+  <div class="dp-footer">
+    <span class="dp-hint" id="dp-hint">Select check-in date</span>
+    <button class="btn btn-ghost btn-sm" onclick="dpClearAll()">Clear</button>
+    <button class="btn btn-sm" onclick="dpClose()">Done</button>
+  </div>
+</div>
+
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <script src="bloomstone-logic.js"></script>
+
+<!-- ── Register Service Worker (PWA offline + installable) -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .catch(err => console.warn('[SW] Failed:', err));
+  });
+}
+</script>
 </body>
 </html>
