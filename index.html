@@ -752,7 +752,7 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .sidebar-overlay.open{display:block}
   .mobile-nav{display:block}
   .mobile-hamburger{display:flex}
-  .workspace{padding:14px 14px 90px}
+  .workspace{padding:10px 8px calc(60px + env(safe-area-inset-bottom) + 8px)}
   .stats-grid{grid-template-columns:1fr 1fr}
   .today-sections{grid-template-columns:1fr}
   .finance-grid{grid-template-columns:1fr}
@@ -768,9 +768,21 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
   .data-table{display:none}
   .prop-grid{grid-template-columns:1fr}
   .avail-grid{grid-template-columns:1fr}
-  .month-cell{min-height:60px}
-  .cal-event-bar{height:16px;line-height:16px;font-size:9px}
+  /* ── Calendar mobile fixes ── */
+  .cal-container{height:calc(100vh - var(--topbar-h) - calc(60px + env(safe-area-inset-bottom)) - 16px)}
+  .cal-toolbar{padding-bottom:8px;gap:6px}
+  .cal-period-label{font-size:13px;min-width:120px}
+  .cal-view-tabs{gap:1px}
+  .cal-view-tab{padding:4px 8px;font-size:11px}
+  .month-grid{gap:0;border-radius:var(--radius);border:1px solid var(--border);background:var(--border)}
+  .month-day-name{padding:5px 2px;font-size:9px;letter-spacing:0}
+  .month-cell{min-height:0;height:calc((100vw - 28px) / 7 * 1.15);padding:3px 2px;overflow:hidden}
+  .month-cell-num{font-size:10px;margin-bottom:1px;font-weight:700}
+  .month-cell.today .month-cell-num{width:18px;height:18px;font-size:10px}
+  .cal-event-bar{height:13px;line-height:13px;font-size:8px;padding:0 3px;margin-bottom:1px}
+  .cal-more{font-size:8px}
   .filter-bar{position:relative;top:auto}
+  .cal-body{overflow-y:auto;overflow-x:hidden}
   .exp-amounts{grid-template-columns:1fr 1fr}
   /* Hide floating FABs on mobile — bottom nav handles these */
   .fab{display:none!important}
