@@ -1193,11 +1193,12 @@ function openBookingDrawer(id=null){
       if(soEl){soEl.dataset.keepValue='1';soEl.value=b.specialOffer??0;soEl.classList.remove('error');delete soEl.dataset.keepValue;}
       // bookingFee auto-calculated
       const svcEl=document.getElementById('f-servicefee');
-      if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');delete svcEl.dataset.manual;svcEl.style.borderColor='';}
+      // Mark loaded fees so calcFinancials() does NOT auto-overwrite saved values
+      if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');svcEl.dataset.manual='loaded';svcEl.style.borderColor='';}
       const svcRstBtn=document.getElementById('f-servicefee-reset');
       if(svcRstBtn)svcRstBtn.style.display='none';
       const gsfEl=document.getElementById('f-guestservicefee');
-      if(gsfEl){gsfEl.value=b.guestServiceFee??0;delete gsfEl.dataset.manual;}
+      if(gsfEl){gsfEl.value=b.guestServiceFee??0;gsfEl.dataset.manual='loaded';}
       document.getElementById('f-extraguests').value=b.extraGuests??0;
       document.getElementById('f-store').value=b.storeSales??0;
       document.getElementById('f-cleaning').value=b.cleaningFee??0;
@@ -1394,9 +1395,10 @@ function onPropertyChange(){
     const maxExtra=prop.maxGuests-prop.baseGuests;
     const eg=document.getElementById('f-extraguests');
     if(eg){eg.max=maxExtra;if(+eg.value>maxExtra)eg.value=maxExtra;}
-    // Always auto-fill base rate when property changes
+    // Auto-fill base rate only when creating a new booking (field is empty)
+    // Do NOT overwrite a saved rate when editing an existing booking
     const rateEl=document.getElementById('f-rate');
-    if(rateEl&&prop.baseRate)rateEl.value=prop.baseRate;
+    if(rateEl&&prop.baseRate&&!rateEl.value)rateEl.value=prop.baseRate;
   }else{
     if(hint)hint.textContent='';
     if(badge)badge.style.display='none';
