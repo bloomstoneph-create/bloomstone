@@ -274,6 +274,8 @@ let currentWs='today', currentSubView='';
 let calView='month', calDate=new Date(), calPropFilter='all', calPlatFilter='all';
 let drawerUnsaved=false, cmdSelectedIdx=-1;
 let _currentAdjustments=[];
+// When true, side-effect functions skip value-clearing/auto-fill so saved data is never overwritten during load
+let _loadingDrawer=false;
 
 // ---- PERSISTENCE
 let _isPulling=false;      // true while a pull is running
@@ -545,32 +547,35 @@ function openDraftInDrawer(draftId){
   loadDrafts();
   const draft=drafts.find(d=>d.id===draftId);
   if(!draft){openBookingDrawer();return;}
-  openBookingDrawer(); // resets all fields + sets editingBookingId=null
+  openBookingDrawer(); // resets all fields
   _currentDraftId=draftId; // restore AFTER openBookingDrawer resets it
-  document.getElementById('f-guest').value=draft.guest||'';
-  if(draft.checkin)document.getElementById('f-checkin').value=draft.checkin;
-  if(draft.checkout)document.getElementById('f-checkout').value=draft.checkout;
-  dpSyncFromHidden();
-  if(draft.property)document.getElementById('f-property').value=draft.property;
-  if(draft.platform)setPlatPickerValue(draft.platform);
-  if(draft.rate)document.getElementById('f-rate').value=draft.rate;
-  const dPromo=document.getElementById('f-promo');
-  if(dPromo&&draft.promo!=null){dPromo.dataset.keepValue='1';dPromo.value=draft.promo;delete dPromo.dataset.keepValue;}
-  const dSO=document.getElementById('f-specialoffer');
-  if(dSO&&draft.specialOffer!=null){dSO.dataset.keepValue='1';dSO.value=draft.specialOffer;delete dSO.dataset.keepValue;}
-  const dSvc=document.getElementById('f-servicefee');
-  if(dSvc&&draft.serviceFee!=null){dSvc.value=draft.serviceFee;}
-  if(draft.guestServiceFee!=null){
-    const el=document.getElementById('f-guestservicefee');
-    if(el){el.dataset.keepValue='1';el.value=draft.guestServiceFee;delete el.dataset.keepValue;}
-  }
-  if(draft.depRefundedAmt!=null){const el=document.getElementById('f-dep-refunded-amt');if(el)el.value=draft.depRefundedAmt;}
-  if(draft.storeSales!=null)document.getElementById('f-store').value=draft.storeSales;
-  if(draft.cleaningFee!=null)document.getElementById('f-cleaning').value=draft.cleaningFee;
-  if(draft.deposit!=null)document.getElementById('f-deposit').value=draft.deposit;
-  if(draft.status){const s=document.getElementById('f-status');if(s){s.value=draft.status;applyStatusColor(s);}}
-  if(draft.payment){const p=document.getElementById('f-payment');if(p)p.value=draft.payment;}
-  if(draft.notes)document.getElementById('f-notes').value=draft.notes;
+  _loadingDrawer=true; // prevent side-effects from overwriting restored draft values
+  try{
+    document.getElementById('f-guest').value=draft.guest||'';
+    if(draft.checkin)document.getElementById('f-checkin').value=draft.checkin;
+    if(draft.checkout)document.getElementById('f-checkout').value=draft.checkout;
+    dpSyncFromHidden();
+    if(draft.property)document.getElementById('f-property').value=draft.property;
+    if(draft.platform)setPlatPickerValue(draft.platform);
+    if(draft.rate!=null)document.getElementById('f-rate').value=draft.rate;
+    const dPromo=document.getElementById('f-promo');
+    if(dPromo&&draft.promo!=null){dPromo.value=draft.promo;}
+    const dSO=document.getElementById('f-specialoffer');
+    if(dSO&&draft.specialOffer!=null){dSO.value=draft.specialOffer;}
+    const dSvc=document.getElementById('f-servicefee');
+    if(dSvc&&draft.serviceFee!=null){dSvc.value=draft.serviceFee;dSvc.dataset.manual='loaded';}
+    if(draft.guestServiceFee!=null){
+      const el=document.getElementById('f-guestservicefee');
+      if(el){el.value=draft.guestServiceFee;el.dataset.manual='loaded';}
+    }
+    if(draft.depRefundedAmt!=null){const el=document.getElementById('f-dep-refunded-amt');if(el)el.value=draft.depRefundedAmt;}
+    if(draft.storeSales!=null)document.getElementById('f-store').value=draft.storeSales;
+    if(draft.cleaningFee!=null)document.getElementById('f-cleaning').value=draft.cleaningFee;
+    if(draft.deposit!=null)document.getElementById('f-deposit').value=draft.deposit;
+    if(draft.status){const s=document.getElementById('f-status');if(s){s.value=draft.status;applyStatusColor(s);}}
+    if(draft.payment){const p=document.getElementById('f-payment');if(p)p.value=draft.payment;}
+    if(draft.notes)document.getElementById('f-notes').value=draft.notes;
+  }finally{_loadingDrawer=false;}
   onPropertyChange();calcFinancials();
   renderGuestProfile(draft.guest||'');
   updateDrawerSummary();
@@ -938,15 +943,17 @@ function updatePromoSpecialOfferState(){
     promoEl.disabled=!isDirect;
     promoEl.style.opacity=isDirect?'':'0.4';
     promoEl.style.cursor=isDirect?'':'not-allowed';
-    if(!isDirect&&!promoEl.dataset.keepValue){promoEl.value=0;}
+    // Only clear values when user actively changes platform, never during load
+    if(!_loadingDrawer&&!isDirect&&!promoEl.dataset.keepValue){promoEl.value=0;}
   }
   if(soEl){
     soEl.disabled=isDirect;
     soEl.style.opacity=isDirect?'0.4':'';
     soEl.style.cursor=isDirect?'not-allowed':'';
-    if(isDirect&&!soEl.dataset.keepValue){soEl.value=0;}
+    if(!_loadingDrawer&&isDirect&&!soEl.dataset.keepValue){soEl.value=0;}
   }
-  if(isDirect){
+  // Only zero and unmark service fees when user actively switches to direct, never during load
+  if(!_loadingDrawer&&isDirect){
     const _sf=document.getElementById('f-servicefee');
     if(_sf){delete _sf.dataset.manual;_sf.style.borderColor='';_sf.value=0;}
     const _sfr=document.getElementById('f-servicefee-reset');
@@ -1180,39 +1187,41 @@ function openBookingDrawer(id=null){
   if(id){
     const b=bookings.find(x=>x.id===id);
     if(b){
-      document.getElementById('f-checkin').value=b.checkin||'';
-      document.getElementById('f-checkout').value=b.checkout||'';
-      dpSyncFromHidden(); // update date picker trigger display
-      document.getElementById('f-guest').value=b.guest||'';
-      setPlatPickerValue(b.platform||'');
-      document.getElementById('f-property').value=b.property||'';
-      document.getElementById('f-rate').value=b.rate??'';
-      const promoEl=document.getElementById('f-promo');
-      if(promoEl){promoEl.dataset.keepValue='1';promoEl.value=b.promo??0;promoEl.classList.remove('error');delete promoEl.dataset.keepValue;}
-      const soEl=document.getElementById('f-specialoffer');
-      if(soEl){soEl.dataset.keepValue='1';soEl.value=b.specialOffer??0;soEl.classList.remove('error');delete soEl.dataset.keepValue;}
-      // bookingFee auto-calculated
-      const svcEl=document.getElementById('f-servicefee');
-      // Mark loaded fees so calcFinancials() does NOT auto-overwrite saved values
-      if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');svcEl.dataset.manual='loaded';svcEl.style.borderColor='';}
-      const svcRstBtn=document.getElementById('f-servicefee-reset');
-      if(svcRstBtn)svcRstBtn.style.display='none';
-      const gsfEl=document.getElementById('f-guestservicefee');
-      if(gsfEl){gsfEl.value=b.guestServiceFee??0;gsfEl.dataset.manual='loaded';}
-      document.getElementById('f-extraguests').value=b.extraGuests??0;
-      document.getElementById('f-store').value=b.storeSales??0;
-      document.getElementById('f-cleaning').value=b.cleaningFee??0;
-      document.getElementById('f-deposit').value=b.deposit??0;
-      document.getElementById('f-dep-refunded-amt').value=b.depositRefunded?(b.depositRefundedAmt||0):0;
-      document.getElementById('f-status').value=b.status||'Confirmed';
-      applyStatusColor(document.getElementById('f-status'));
-      document.getElementById('f-payment').value=b.payment||'Platform (Auto)';
-      document.getElementById('f-notes').value=b.notes||'';
-      // guestPrefs merged into notes
-      document.getElementById('f-dep-collected').value=(+b.deposit||0)>0?'1':(b.depositCollected?'1':'');
-      document.getElementById('f-dep-refunded').value=b.depositRefunded?'1':'';
+      _loadingDrawer=true; // prevent side-effect functions from overwriting saved values
+      try{
+        document.getElementById('f-checkin').value=b.checkin||'';
+        document.getElementById('f-checkout').value=b.checkout||'';
+        dpSyncFromHidden(); // update date picker trigger display
+        document.getElementById('f-guest').value=b.guest||'';
+        setPlatPickerValue(b.platform||'');
+        document.getElementById('f-property').value=b.property||'';
+        document.getElementById('f-rate').value=b.rate??'';
+        const promoEl=document.getElementById('f-promo');
+        if(promoEl){promoEl.value=b.promo??0;promoEl.classList.remove('error');}
+        const soEl=document.getElementById('f-specialoffer');
+        if(soEl){soEl.value=b.specialOffer??0;soEl.classList.remove('error');}
+        // bookingFee auto-calculated; mark fees so calcFinancials() does not auto-overwrite
+        const svcEl=document.getElementById('f-servicefee');
+        if(svcEl){svcEl.value=b.serviceFee??0;svcEl.classList.remove('error');svcEl.dataset.manual='loaded';svcEl.style.borderColor='';}
+        const svcRstBtn=document.getElementById('f-servicefee-reset');
+        if(svcRstBtn)svcRstBtn.style.display='none';
+        const gsfEl=document.getElementById('f-guestservicefee');
+        if(gsfEl){gsfEl.value=b.guestServiceFee??0;gsfEl.dataset.manual='loaded';}
+        document.getElementById('f-extraguests').value=b.extraGuests??0;
+        document.getElementById('f-store').value=b.storeSales??0;
+        document.getElementById('f-cleaning').value=b.cleaningFee??0;
+        document.getElementById('f-deposit').value=b.deposit??0;
+        document.getElementById('f-dep-refunded-amt').value=b.depositRefunded?(b.depositRefundedAmt||0):0;
+        document.getElementById('f-status').value=b.status||'Confirmed';
+        applyStatusColor(document.getElementById('f-status'));
+        document.getElementById('f-payment').value=b.payment||'Platform (Auto)';
+        document.getElementById('f-notes').value=b.notes||'';
+        // guestPrefs merged into notes
+        document.getElementById('f-dep-collected').value=(+b.deposit||0)>0?'1':(b.depositCollected?'1':'');
+        document.getElementById('f-dep-refunded').value=b.depositRefunded?'1':'';
+        _currentAdjustments=(b.adjustments||[]).map(a=>({...a}));
+      }finally{_loadingDrawer=false;}
       onDatesChange();onPropertyChange();
-      _currentAdjustments=(b.adjustments||[]).map(a=>({...a}));
       renderDrawerHistory(b);renderGuestProfile(b.guest);
       renderAdjustments();
     }
@@ -1395,10 +1404,10 @@ function onPropertyChange(){
     const maxExtra=prop.maxGuests-prop.baseGuests;
     const eg=document.getElementById('f-extraguests');
     if(eg){eg.max=maxExtra;if(+eg.value>maxExtra)eg.value=maxExtra;}
-    // Auto-fill base rate only when creating a new booking (field is empty)
-    // Do NOT overwrite a saved rate when editing an existing booking
+    // Auto-fill base rate when user actively changes property, but never during load
+    // (during load the saved rate is already in the field and must not be overwritten)
     const rateEl=document.getElementById('f-rate');
-    if(rateEl&&prop.baseRate&&!rateEl.value)rateEl.value=prop.baseRate;
+    if(rateEl&&prop.baseRate&&!_loadingDrawer)rateEl.value=prop.baseRate;
   }else{
     if(hint)hint.textContent='';
     if(badge)badge.style.display='none';
