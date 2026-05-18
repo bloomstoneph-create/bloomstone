@@ -152,8 +152,8 @@ function saveAsExcel(){
     const bkRows=bookings.map(b=>{const t=calcTotals(b);return[b.id,b.guest,b.checkin,b.checkout,t.nights,b.platform,propName(b.property),b.rate||0,b.promo||0,b.bookingFee||0,t.netRevenue,b.storeSales||0,b.deposit||0,b.depositCollected?'Yes':'No',b.depositRefunded?'Yes':'No',b.payment||'',b.status||'',b.notes||'',b.guestPrefs||'',b.createdAt||''];});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([bkHeaders,...bkRows]),'Bookings');
     // Properties sheet
-    const prHeaders=['ID','Name','City','Address','Beds','Base Guests','Max Guests','Base Rate','Extra Guest Fee','Blocked Dates','Notes'];
-    const prRows=properties.map(p=>[p.id,p.name,p.city,p.address||'',p.beds||0,p.baseGuests||2,p.maxGuests||4,p.baseRate||0,p.extraGuestFee||0,(p.blockedDates||[]).join(','),p.notes||'']);
+    const prHeaders=['ID','Name','City','Address','Beds','Base Guests','Max Guests','Base Rate','Extra Guest Fee','Blocked Dates','Notes','Airbnb URL','Icon'];
+    const prRows=properties.map(p=>[p.id,p.name,p.city,p.address||'',p.beds||0,p.baseGuests||2,p.maxGuests||4,p.baseRate||0,p.extraGuestFee||0,(p.blockedDates||[]).join(','),p.notes||'',p.airbnbUrl||'',p.iconId||'house']);
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([prHeaders,...prRows]),'Properties');
     // Platforms sheet
     const plHeaders=['ID','Name','Commission %','VAT %','Guest Fee %','Color'];
@@ -209,7 +209,7 @@ function loadFromExcel(){
               beds:+r.Beds||0,baseGuests:+r['Base Guests']||2,maxGuests:+r['Max Guests']||4,
               baseRate:+r['Base Rate']||0,extraGuestFee:+r['Extra Guest Fee']||300,
               blockedDates:r['Blocked Dates']?String(r['Blocked Dates']).split(',').filter(Boolean):[],
-              notes:r.Notes||'',
+              notes:r.Notes||'',airbnbUrl:r['Airbnb URL']||'',iconId:r.Icon||'house',
             }));
             imported.properties=properties.length;
           }
@@ -476,15 +476,6 @@ function renderRecentBookings(containerEl){
     </div>`).join('');
 }
 
-function toggleRecentPanel(){
-  const p=document.getElementById('recentBookingsPanel');
-  if(!p)return;
-  const isOpen=p.style.display!=='none'&&p.style.display!=='';
-  if(isOpen){p.style.display='none';}else{
-    p.style.display='block';
-    renderRecentBookings(document.getElementById('recentBookingsList'));
-  }
-}
 function closeRecentPanel(){const p=document.getElementById('recentBookingsPanel');if(p)p.style.display='none';}
 
 // ============================================================
@@ -723,8 +714,9 @@ function calcTotals(b){
   const storeSales=+b.storeSales||0;               // store/add-on income
   // ── Net Revenue to owner ──
   const netRevenue=guestTotal-svcFee-cleaningFee+storeSales;
+  const totalWithout=guestTotal-extraFee;            // accommodation total without extra-guest fee
   return{nights,rate,promo,promoTotal,specialOffer,stayFee,bkFee,extraFee,svcFee,platFee,
-         guestTotal,cleaningFee,storeSales,netRevenue,
+         guestTotal,totalWithout,cleaningFee,storeSales,netRevenue,
          guestFeeRate,guestServiceFee,totalGuestPaid,
          extraG,comm,vat,feePerG,baseG,maxG,adjTotal};
 }
@@ -987,7 +979,7 @@ function populateSelects(){
   // Rebuild custom platform picker options (preserves current selection)
   buildPlatPickerOptions();
   const fProp=document.getElementById('f-property');if(fProp){const c=fProp.value;fProp.innerHTML=prOpts;if(c)fProp.value=c;}
-  [['bk-prop',true],['cal-prop',true],['fin-prop',true],['rep-prop',true]].forEach(([id,all])=>{
+  [['bk-prop',true],['cal-prop',true],['fin-prop',true],['rep-prop',true],['exp-prop',true]].forEach(([id,all])=>{
     const el=document.getElementById(id);if(!el)return;
     const c=el.value;
     el.innerHTML=(all?'<option value="all">All Properties</option>':'')+properties.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
@@ -1055,7 +1047,7 @@ function getFilteredBookings(){
   const pl=document.getElementById('bk-plat')?.value||'all';
   const st=document.getElementById('bk-status')?.value||'all';
   return bookings.filter(b=>{
-    if(m!=='all'){const[y,mo]=m.split('-').map(Number);const d=new Date(b.checkin);if(d.getFullYear()!==y||d.getMonth()+1!==mo)return false;}
+    if(m!=='all'){const[y,mo]=m.split('-').map(Number);const d=new Date(b.checkin+'T12:00:00');if(d.getFullYear()!==y||d.getMonth()+1!==mo)return false;}
     if(pr!=='all'&&b.property!==pr)return false;
     if(pl!=='all'&&b.platform!==pl)return false;
     if(st!=='all'&&b.status!==st)return false;
@@ -1251,10 +1243,6 @@ function closeDrawer(){
   document.body.style.overflow='';
 }
 
-// switchDrawerTab kept as no-op for backward compatibility (tabs removed, all panels always visible)
-function switchDrawerTab(tabId){}
-
-function renderDrawerTasks(b){/* tasks section removed */}
 function toggleTask(key){
   if(!editingBookingId)return;
   const b=bookings.find(x=>x.id===editingBookingId);if(!b)return;
@@ -1531,12 +1519,6 @@ function resetServiceFee(){
   if(el){delete el.dataset.manual;el.style.borderColor='';}
   const rst=document.getElementById('f-servicefee-reset');
   if(rst)rst.style.display='none';
-  calcFinancials();
-}
-
-function resetGuestServiceFee(){
-  const el=document.getElementById('f-guestservicefee');
-  if(el){delete el.dataset.manual;el.style.borderColor='';}
   calcFinancials();
 }
 
@@ -1914,7 +1896,7 @@ function openDayModal(dateStr){
     const nd=new Date(dateStr+'T12:00:00');nd.setDate(nd.getDate()+1);
     document.getElementById('f-checkout').value=dateToISO(nd);
     dpSyncFromHidden();
-    if(propId!=='all')document.getElementById('f-property').value=propId;
+    if(calPropFilter!=='all')document.getElementById('f-property').value=calPropFilter;
     onDatesChange();onPropertyChange();
   };
   openModal('dayModal');
@@ -2200,9 +2182,9 @@ function getFinanceList(){
   const pr=document.getElementById('fin-prop')?.value||'all';
   const now=new Date();
   let list=bookings.filter(b=>b.status!=='Cancelled');
-  if(f==='thismonth')list=list.filter(b=>{const d=new Date(b.checkin);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  else if(f==='lastmonth'){const lm=new Date(now.getFullYear(),now.getMonth()-1,1);list=list.filter(b=>{const d=new Date(b.checkin);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});}
-  else if(f==='thisyear')list=list.filter(b=>new Date(b.checkin).getFullYear()===now.getFullYear());
+  if(f==='thismonth')list=list.filter(b=>{const d=new Date(b.checkin+'T12:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  else if(f==='lastmonth'){const lm=new Date(now.getFullYear(),now.getMonth()-1,1);list=list.filter(b=>{const d=new Date(b.checkin+'T12:00:00');return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});}
+  else if(f==='thisyear')list=list.filter(b=>new Date(b.checkin+'T12:00:00').getFullYear()===now.getFullYear());
   if(pr!=='all')list=list.filter(b=>b.property===pr);
   return list;
 }
@@ -2404,7 +2386,7 @@ function renderDeposits(){
   const mo=document.getElementById('dep-month')?.value||'all';
   const st=document.getElementById('dep-status')?.value||'all';
   let list=bookings.filter(b=>b.deposit&&b.status!=='Cancelled');
-  if(mo!=='all'){const[y,m]=mo.split('-').map(Number);list=list.filter(b=>{const d=new Date(b.checkin);return d.getFullYear()===y&&d.getMonth()+1===m;});}
+  if(mo!=='all'){const[y,m]=mo.split('-').map(Number);list=list.filter(b=>{const d=new Date(b.checkin+'T12:00:00');return d.getFullYear()===y&&d.getMonth()+1===m;});}
   if(st==='pending')list=list.filter(b=>!b.depositCollected);
   else if(st==='collected')list=list.filter(b=>b.depositCollected&&!b.depositRefunded);
   else if(st==='refunded')list=list.filter(b=>b.depositRefunded);
@@ -2864,7 +2846,7 @@ function drawBarChart(canvasId){
   const now=new Date();
   const months=[];
   for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({label:d.toLocaleString('default',{month:'short'}),y:d.getFullYear(),m:d.getMonth()});}
-  const vals=months.map(mo=>bookings.filter(b=>b.status!=='Cancelled').filter(b=>{const d=new Date(b.checkin);return d.getFullYear()===mo.y&&d.getMonth()===mo.m;}).reduce((s,b)=>s+calcTotals(b).netRevenue,0));
+  const vals=months.map(mo=>bookings.filter(b=>b.status!=='Cancelled').filter(b=>{const d=new Date(b.checkin+'T12:00:00');return d.getFullYear()===mo.y&&d.getMonth()===mo.m;}).reduce((s,b)=>s+calcTotals(b).netRevenue,0));
   drawBars(canvas,months.map(m=>m.label),vals,'#1a1a1a');
 }
 function drawBarChart2(keys,groups,canvasId){
@@ -2937,7 +2919,7 @@ function drawOccupancyChart(canvasId,list){
   const months=[];
   for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({label:d.toLocaleString('default',{month:'short'}),y:d.getFullYear(),m:d.getMonth(),days:new Date(d.getFullYear(),d.getMonth()+1,0).getDate()});}
   const vals=months.map(mo=>{
-    const nights=list.filter(b=>{const d=new Date(b.checkin);return d.getFullYear()===mo.y&&d.getMonth()===mo.m;}).reduce((s,b)=>s+nightsBetween(b.checkin,b.checkout),0);
+    const nights=list.filter(b=>{const d=new Date(b.checkin+'T12:00:00');return d.getFullYear()===mo.y&&d.getMonth()===mo.m;}).reduce((s,b)=>s+nightsBetween(b.checkin,b.checkout),0);
     return Math.min(100,Math.round(nights/Math.max(1,properties.length*mo.days)*100));
   });
   drawBars(canvas,months.map(m=>m.label),vals,'#2d6a1f');
@@ -3644,7 +3626,8 @@ async function sheetsPush(silent=false){
         'Base Guests':p.baseGuests||2,'Max Guests':p.maxGuests||4,
         'Base Rate':p.baseRate||0,'Extra Guest Fee':p.extraGuestFee||0,
         'Blocked Dates':(p.blockedDates||[]).join(','),
-        'Map URL':p.map||'',Notes:p.notes||''
+        'Map URL':p.map||'',Notes:p.notes||'',
+        'Airbnb URL':p.airbnbUrl||'',Icon:p.iconId||'house'
       })),
       platforms: platforms.map(p=>({
         ID:p.id,Name:p.name,'Commission %':p.commission,'VAT %':p.vat,'Guest Fee %':p.guestFee||0,Color:p.color||'#888'
@@ -3740,6 +3723,7 @@ function applySheetsPullData(data){
       baseRate:+r['Base Rate']||0,extraGuestFee:+r['Extra Guest Fee']||300,
       blockedDates:r['Blocked Dates']?String(r['Blocked Dates']).split(',').filter(Boolean):[],
       map:r['Map URL']||'',notes:r.Notes||'',
+      airbnbUrl:r['Airbnb URL']||'',iconId:r.Icon||'house',
     }));
   }
   if(Array.isArray(data.platforms)&&data.platforms.length){
