@@ -1582,7 +1582,16 @@ function _commitBooking(bk,isNew){
   if(!isNew){const i=bookings.findIndex(b=>b.id===editingBookingId);if(i>=0)bookings[i]=bk;toast('Booking updated.');}
   else{bookings.unshift(bk);toast('Booking added.');}
   if(_currentDraftId){deleteDraft(_currentDraftId);} // remove draft on confirmed save
-  saveAll();closeDrawer();renderView(currentWs);driveAutoBackup();
+  // Save locally first
+  try{localStorage.setItem(LS_KEY,JSON.stringify({bookings,properties,platforms,expenses,trash}));}catch(e){console.error('save failed',e);}
+  // Block quiet pull for 60 s so the immediate push below is not overwritten by stale Sheets data
+  _pullCooldownUntil=Date.now()+60000;
+  clearTimeout(_autoPushTimer);_autoPushTimer=null;
+  closeDrawer();renderView(currentWs);
+  // Push to Sheets immediately — no debounce on booking saves
+  if(sheetsConfig.connected&&sheetsConfig.url){
+    sheetsPush(true).catch(()=>{});
+  }
 }
 
 function _buildChangeDiff(orig,bk){
@@ -3680,7 +3689,8 @@ async function sheetsPush(silent=false){
     else{const d=document.getElementById('sheetsDot');if(d)d.classList.remove('syncing');}
   }catch(err){
     const d=document.getElementById('sheetsDot');if(d)d.classList.remove('syncing');
-    if(!silent){setSheetsProgress(false);toast('Push failed: '+err.message,'error');}
+    if(!silent){setSheetsProgress(false);toast('Sync failed: '+err.message,'error');}
+    else{toast('⚠️ Sheets sync failed — data saved locally only.','warning',5000);}
     console.error('Sheets push error:',err);
   }
 }
