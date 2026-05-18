@@ -1563,7 +1563,8 @@ function _buildBookingFromForm(existing){
     status:document.getElementById('f-status').value,
     payment:document.getElementById('f-payment').value,
     notes:document.getElementById('f-notes').value,
-    guestPrefs:'',
+    guestPrefs:existing?.guestPrefs||'',
+    guestCount:existing?.guestCount||1,
     depositCollected:(+document.getElementById('f-deposit').value||0)>0,
     depositRefunded:(+document.getElementById('f-dep-refunded-amt').value||0)>0,
     depositRefundedAmt:+document.getElementById('f-dep-refunded-amt').value||0,
@@ -2200,8 +2201,21 @@ function renderFinanceOverview(){
   const totalAddons=list.reduce((s,b)=>s+(+b.storeSales||0),0);
   const totalPlatFee=list.reduce((s,b)=>s+calcTotals(b).platFee,0);
   const totalPromo=list.reduce((s,b)=>s+(+b.promo||0),0);
-  const totalExp=expenses.reduce((s,e)=>s+(e.amount||0),0);
-  const netProfit=totalRev+totalAddons-totalExp;
+  // Filter expenses to match the selected period and property
+  const finPeriod=document.getElementById('fin-period')?.value||'all';
+  const finProp=document.getElementById('fin-prop')?.value||'all';
+  const now2=new Date();
+  const filteredExp=expenses.filter(e=>{
+    if(finProp!=='all'&&e.prop!=='all'&&e.prop!==finProp)return false;
+    if(finPeriod==='thismonth'){const ym=`${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}`;return e.month===ym;}
+    if(finPeriod==='lastmonth'){const lm=new Date(now2.getFullYear(),now2.getMonth()-1,1);const ym=`${lm.getFullYear()}-${String(lm.getMonth()+1).padStart(2,'0')}`;return e.month===ym;}
+    if(finPeriod==='thisyear')return e.month?.startsWith(String(now2.getFullYear()));
+    return true;
+  });
+  // Exclude cleaning from expenses — cleaning is already deducted inside each booking's netRevenue
+  const totalExp=filteredExp.reduce((s,e)=>s+((e.amount||0)-(e.cleaning||0)),0);
+  // storeSales is already included in netRevenue; don't add it again
+  const netProfit=totalRev-totalExp;
   document.getElementById('finStats').innerHTML=`
     <div class="stat-card"><div class="stat-label">Net Revenue</div><div class="stat-value">${fmtMoney(totalRev)}</div><div class="stat-sub">${list.length} bookings</div></div>
     <div class="stat-card"><div class="stat-label">Add-on Sales</div><div class="stat-value">${fmtMoney(totalAddons)}</div></div>
@@ -2212,17 +2226,17 @@ function renderFinanceOverview(){
       <div class="finance-row"><span class="label">Room Revenue</span><span class="val">${fmtMoney(totalRoom)}</span></div>
       <div class="finance-row"><span class="label">Extra Guest Fees</span><span class="val">${fmtMoney(totalExtra)}</span></div>
       <div class="finance-row"><span class="label">Add-ons / Store</span><span class="val">${fmtMoney(totalAddons)}</span></div>
-      <div class="finance-row"><span class="label">Total Revenue</span><span class="val pos">${fmtMoney(totalRev+totalAddons)}</span></div>
+      <div class="finance-row"><span class="label">Total Net Revenue</span><span class="val pos">${fmtMoney(totalRev)}</span></div>
     </div>
     <div class="finance-block"><div class="finance-block-title">Deductions</div>
       <div class="finance-row"><span class="label">Platform Fees</span><span class="val neg">\u2212${fmtMoney(totalPlatFee)}</span></div>
       <div class="finance-row"><span class="label">Discounts / Promos</span><span class="val neg">\u2212${fmtMoney(totalPromo)}</span></div>
-      <div class="finance-row"><span class="label">Expenses</span><span class="val neg">\u2212${fmtMoney(totalExp)}</span></div>
+      <div class="finance-row"><span class="label">Other Expenses</span><span class="val neg">\u2212${fmtMoney(totalExp)}</span></div>
       <div class="finance-row"><span class="label">Total Deductions</span><span class="val neg">\u2212${fmtMoney(totalPlatFee+totalPromo+totalExp)}</span></div>
     </div>
     <div class="finance-block"><div class="finance-block-title">Profit</div>
-      <div class="finance-row"><span class="label">Total Revenue</span><span class="val">${fmtMoney(totalRev+totalAddons)}</span></div>
-      <div class="finance-row"><span class="label">Total Deductions</span><span class="val neg">\u2212${fmtMoney(totalPlatFee+totalPromo+totalExp)}</span></div>
+      <div class="finance-row"><span class="label">Net Revenue</span><span class="val">${fmtMoney(totalRev)}</span></div>
+      <div class="finance-row"><span class="label">Other Expenses</span><span class="val neg">\u2212${fmtMoney(totalExp)}</span></div>
       <div class="finance-row"><span class="label">Net Profit</span><span class="val pos">${fmtMoney(netProfit)}</span></div>
     </div>`;
   const wrap=document.getElementById('finCharts');
@@ -2837,9 +2851,9 @@ function renderReports(){
     drawPieChart('repPieCanvas',list);
     drawOccupancyChart('repOccCanvas',list);
   },50);
-  document.getElementById('repThead').innerHTML=`<tr><th>${group==='yearly'?'Year':'Month'}</th><th>Bookings</th><th>Nights</th><th>Net Revenue</th><th>Store Sales</th><th>Total</th></tr>`;
-  document.getElementById('repTbody').innerHTML=keys.map(k=>{const g=groups[k];return`<tr><td><strong>${group==='yearly'?k:fmtMonthYear(k+'-01')}</strong></td><td>${g.bookings.length}</td><td>${g.nights}</td><td>${fmtMoney(g.revenue)}</td><td>${fmtMoney(g.store)}</td><td><strong>${fmtMoney(g.revenue+g.store)}</strong></td></tr>`;}).join('');
-  document.getElementById('repTfoot').innerHTML=`<tr style="background:var(--surface-3);font-weight:700"><td>TOTAL</td><td>${list.length}</td><td>${totalNights}</td><td>${fmtMoney(totalRev)}</td><td>${fmtMoney(totalStore)}</td><td>${fmtMoney(totalRev+totalStore)}</td></tr>`;
+  document.getElementById('repThead').innerHTML=`<tr><th>${group==='yearly'?'Year':'Month'}</th><th>Bookings</th><th>Nights</th><th>Net Revenue</th><th>Store Sales</th></tr>`;
+  document.getElementById('repTbody').innerHTML=keys.map(k=>{const g=groups[k];return`<tr><td><strong>${group==='yearly'?k:fmtMonthYear(k+'-01')}</strong></td><td>${g.bookings.length}</td><td>${g.nights}</td><td>${fmtMoney(g.revenue)}</td><td>${fmtMoney(g.store)}</td></tr>`;}).join('');
+  document.getElementById('repTfoot').innerHTML=`<tr style="background:var(--surface-3);font-weight:700"><td>TOTAL</td><td>${list.length}</td><td>${totalNights}</td><td>${fmtMoney(totalRev)}</td><td>${fmtMoney(totalStore)}</td></tr>`;
 }
 ['rep-group','rep-prop','rep-plat','rep-from','rep-to'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',renderReports);});
 
@@ -3621,6 +3635,7 @@ async function sheetsPush(silent=false){
           'Dep Refunded':b.depositRefunded?'Yes':'No',
           Payment:b.payment||'',Status:b.status||'Confirmed',
           'Guest Count':b.guestCount||1,Notes:b.notes||'',
+          'Guest Prefs':b.guestPrefs||'',
           'Created At':b.createdAt||'','Updated At':b.updatedAt||''
         };
       }),
@@ -3644,7 +3659,7 @@ async function sheetsPush(silent=false){
         const rowTotal=promoCost+cleaningCost+(e.water||0)+(e.electricity||0)+(e.supplies||0)+(e.maintenance||0)+(e.other||0);
         return{
           ID:e.id,Month:e.month,Property:e.prop==='all'?'All':propName(e.prop),
-          'Promo Cost':promoCost,'Cleaning Cost':cleaningCost,
+          'Promo Cost':promoCost,'Cleaning Cost':cleaningCost,Cleaning:e.cleaning||0,
           Water:e.water||0,Electricity:e.electricity||0,Supplies:e.supplies||0,
           Maintenance:e.maintenance||0,'Other Expenses':e.other||0,
           Total:rowTotal,Notes:e.notes||''
@@ -3776,8 +3791,7 @@ function applySheetsPullData(data){
       prop:properties.find(p=>p.name===r.Property)?.id||'all',
       water:+r.Water||0,electricity:+r.Electricity||0,supplies:+r.Supplies||0,
       maintenance:+r.Maintenance||0,
-      // Cleaning: prefer manual "Cleaning" col; "Cleaning Cost" is auto-computed so skip on pull
-      cleaning:+r.Cleaning||0,
+      cleaning:+r['Cleaning Cost']||+r.Cleaning||0,
       other:+r.Other||+r['Other Expenses']||0,
       amount:+r.Total||0,notes:r.Notes||''
     }));
