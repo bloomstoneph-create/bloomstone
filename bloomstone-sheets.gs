@@ -24,18 +24,19 @@
 const HEADERS = {
   Bookings: [
     'ID','Guest','Check-in','Check-out','Nights','Platform','Property',
-    'Rate','Promo','Booking Fee','Service Fee','Platform Commission',
+    'Rate','Promo','Special Offer','Guest Service Fee',
+    'Booking Fee','Service Fee','Platform Commission',
     'Extra Guests','Extra Guest Fee','Total (excl. Extra Guests)','Net Revenue',
     'Adjustments Total','Store Sales','Cleaning Fee',
-    'Deposit','Dep Collected','Dep Refunded','Payment','Status',
-    'Guest Count','Notes','Created At','Updated At'
+    'Deposit','Dep Collected','Dep Refunded','Dep Refunded Amt','Payment','Status',
+    'Guest Count','Notes','Guest Prefs','Created At','Updated At'
   ],
   Properties: [
     'ID','Name','City','Address','Beds',
     'Base Guests','Max Guests','Base Rate','Extra Guest Fee',
-    'Blocked Dates','Map URL','Notes'
+    'Blocked Dates','Map URL','Airbnb URL','Icon','Notes'
   ],
-  Platforms: ['ID','Name','Commission %','VAT %','Color'],
+  Platforms: ['ID','Name','Commission %','VAT %','Guest Fee %','Color'],
   Expenses: [
     'ID','Month','Property','Promo Cost','Cleaning Cost',
     'Water','Electricity','Supplies','Maintenance','Other Expenses','Total','Notes'
@@ -114,6 +115,8 @@ function bookingRow(b) {
     b.Property    || b.property    || '',
     num(b.Rate    || b.rate),
     num(b.Promo   || b.promo),
+    num(b['Special Offer'] || b.specialOffer),
+    num(b['Guest Service Fee'] || b.guestServiceFee),
     num(b['Booking Fee'] || b.bookingFee),
     num(b['Service Fee'] || b.serviceFee),
     num(b['Platform Commission'] || b.platformCommission),
@@ -127,10 +130,12 @@ function bookingRow(b) {
     num(b.Deposit || b.deposit),
     yn(b['Dep Collected'] || b.depositCollected),
     yn(b['Dep Refunded']  || b.depositRefunded),
+    num(b['Dep Refunded Amt'] || b.depositRefundedAmt),
     b.Payment     || b.payment  || '',
     b.Status      || b.status   || 'Confirmed',
     num(b['Guest Count'] || b.guestCount || 1),
     b.Notes       || b.notes    || '',
+    b['Guest Prefs'] || b.guestPrefs || '',
     b['Created At']  || b.createdAt  || '',
     b['Updated At']  || b.updatedAt  || ''
   ];
@@ -151,6 +156,8 @@ function propertyRow(p) {
       ? (p['Blocked Dates'] || p.blockedDates).join(',')
       : (p['Blocked Dates'] || p.blockedDates || ''),
     p['Map URL'] || p.map   || '',
+    p['Airbnb URL'] || p.airbnbUrl || '',
+    p.Icon || p.iconId || 'house',
     p.Notes      || p.notes || ''
   ];
 }
@@ -161,6 +168,7 @@ function platformRow(p) {
     p.Name || p.name || '',
     num(p['Commission %'] || p.commission),
     num(p['VAT %']        || p.vat),
+    num(p['Guest Fee %']  || p.guestFee),
     p.Color || p.color || '#888'
   ];
 }
@@ -194,9 +202,9 @@ function settingRow(s) {
 function ensureSheets(ss) {
   Object.keys(HEADERS).forEach(name => {
     let sh = ss.getSheetByName(name);
+    const h = HEADERS[name];
     if (!sh) {
       sh = ss.insertSheet(name);
-      const h = HEADERS[name];
       const hRange = sh.getRange(1, 1, 1, h.length);
       hRange.setValues([h]);
       hRange.setFontWeight('bold');
@@ -204,6 +212,8 @@ function ensureSheets(ss) {
       hRange.setFontColor('#ffffff');
       sh.setFrozenRows(1);
       sh.autoResizeColumns(1, h.length);
+    } else {
+      reconcileHeaders(sh, h);
     }
   });
   // Move SyncLog to last tab
@@ -211,12 +221,33 @@ function ensureSheets(ss) {
   if (log) ss.setActiveSheet(ss.getSheets()[0]);
 }
 
+function reconcileHeaders(sh, expected) {
+  const width = Math.max(sh.getLastColumn(), expected.length);
+  const current = width
+    ? sh.getRange(1, 1, 1, width).getValues()[0].filter(String)
+    : [];
+  const missing = expected.filter(h => current.indexOf(h) === -1);
+  if (!current.length) {
+    sh.getRange(1, 1, 1, expected.length).setValues([expected]);
+  } else if (missing.length) {
+    sh.getRange(1, current.length + 1, 1, missing.length).setValues([missing]);
+  }
+  const finalWidth = Math.max(sh.getLastColumn(), expected.length);
+  const hRange = sh.getRange(1, 1, 1, finalWidth);
+  hRange.setFontWeight('bold');
+  hRange.setBackground('#1a1a1a');
+  hRange.setFontColor('#ffffff');
+  sh.setFrozenRows(1);
+}
+
 function writeSheet(ss, name, rows, headers, rowFn) {
   const sh = ss.getSheetByName(name);
   if (!sh) return;
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]);
   // Clear data rows (keep header)
   const lastRow = sh.getLastRow();
-  if (lastRow > 1) sh.getRange(2, 1, lastRow - 1, headers.length).clearContent();
+  const clearWidth = Math.max(sh.getLastColumn(), headers.length);
+  if (lastRow > 1) sh.getRange(2, 1, lastRow - 1, clearWidth).clearContent();
   if (!rows.length) return;
   const data = rows.map(rowFn);
   sh.getRange(2, 1, data.length, headers.length).setValues(data);
