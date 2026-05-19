@@ -1014,29 +1014,77 @@ function populateSelects(){
 // ============================================================
 function renderToday(){
   const today=todayISO();
+  const now=new Date();
   const checkIns=bookings.filter(b=>b.checkin===today&&b.status!=='Cancelled');
   const checkOuts=bookings.filter(b=>b.checkout===today&&b.status!=='Cancelled');
   const active=bookings.filter(b=>b.status!=='Cancelled'&&b.checkin<=today&&b.checkout>today);
-  const pendingDep=bookings.filter(b=>b.status!=='Cancelled'&&!b.depositCollected&&b.checkin>=today);
-  document.getElementById('todayStats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Check-ins Today</div><div class="stat-value">${checkIns.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Check-outs Today</div><div class="stat-value">${checkOuts.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Active Stays</div><div class="stat-value">${active.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Pending Deposits</div><div class="stat-value">${pendingDep.length}</div></div>`;
-  const sec=(title,items,icon,fn)=>{
-    if(!items.length)return`<div class="today-card"><div class="today-card-header"><div class="today-card-title">${icon} ${title}</div><span class="badge badge-neutral">0</span></div><div class="empty" style="padding:20px"><div class="empty-text">None today</div></div></div>`;
-    return`<div class="today-card"><div class="today-card-header"><div class="today-card-title">${icon} ${title}</div><span class="badge badge-green">${items.length}</span></div>${items.map(b=>`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:8px;border-radius:3px;background:${propertyColor(b.property)};flex-shrink:0;align-self:stretch;min-height:36px"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div><div class="today-item-meta" style="color:${propertyColor(b.property)};font-weight:600">${esc(propName(b.property))}</div></div>${fn?fn(b):''}</div>`).join('')}</div>`;
-  };
-  document.getElementById('todaySections').innerHTML=
-    sec('Check-ins',checkIns,'\u2192',b=>`<span class="badge badge-blue">${b.guestCount||1} guest${b.guestCount!=1?'s':''}</span>`)+
-    sec('Check-outs',checkOuts,'\u2190',b=>`<span class="badge badge-green">${fmtMoney(calcTotals(b).netRevenue)}</span>`);
-  const tl=[...checkIns,...checkOuts,...active.filter(b=>!checkIns.find(c=>c.id===b.id)&&!checkOuts.find(c=>c.id===b.id))];
-  document.getElementById('todayTimeline').innerHTML=`
-    <div class="today-card-header"><div class="today-card-title">\u25f7 Today's Timeline</div></div>
-    ${tl.length?tl.map(b=>{
-      const isIn=b.checkin===today,isOut=b.checkout===today;
-      return`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:8px;border-radius:3px;background:${propertyColor(b.property)};flex-shrink:0;align-self:stretch;min-height:36px"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}</div><div class="today-item-meta"><span style="color:${propertyColor(b.property)};font-weight:600">${esc(propName(b.property))}</span> \u00b7 ${isIn?'Check-in':isOut?'Check-out':'Active stay'}</div></div><div style="display:flex;gap:6px;align-items:center">${statusBadgeHtml(b.status)}<span class="badge badge-neutral">${tasksDone(b)}/${tasksTotal()} tasks</span></div></div>`;
-    }).join(''):`<div class="empty" style="padding:20px"><div class="empty-text">No activity today</div></div>`}`;
+  const pending=bookings.filter(b=>b.status==='Pending');
+  const mnth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthRev=bookings.filter(b=>b.status!=='Cancelled'&&(b.checkin||'').startsWith(mnth)).reduce((s,b)=>s+calcTotals(b).netRevenue,0);
+
+  // \u2500\u2500 STAT PILLS \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  document.getElementById('todayStats').innerHTML=`<div class="stats-scroll">
+    <div class="today-stat-pill" style="background:#10B981"><div class="today-stat-pill-val">${checkIns.length}</div><div class="today-stat-pill-lbl">Check-in</div></div>
+    <div class="today-stat-pill" style="background:#F59E0B"><div class="today-stat-pill-val">${checkOuts.length}</div><div class="today-stat-pill-lbl">Check-out</div></div>
+    <div class="today-stat-pill" style="background:#3B82F6"><div class="today-stat-pill-val">${active.length}</div><div class="today-stat-pill-lbl">Active</div></div>
+    <div class="today-stat-pill" style="background:#8B5CF6"><div class="today-stat-pill-val">${pending.length}</div><div class="today-stat-pill-lbl">Pending</div></div>
+    <div class="today-stat-pill" style="background:#1E293B;min-width:110px"><div class="today-stat-pill-val" style="font-size:17px">${fmtMoney(monthRev)}</div><div class="today-stat-pill-lbl">This month</div></div>
+  </div>`;
+
+  // \u2500\u2500 PROPERTY GRID \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  const propGrid=properties.map(p=>{
+    const isOcc=active.some(b=>b.property===p.id);
+    const pc=propertyColor(p.id);
+    return`<div class="today-prop-card" style="background:linear-gradient(135deg,${pc},${pc}bb)" onclick="showView('properties')">
+      <div class="today-prop-dot${isOcc?' occupied':''}"></div>
+      <div class="today-prop-card-icon">${propIconHtml(p,14)}</div>
+      <div class="today-prop-card-name">${esc(p.name)}</div>
+      <div class="today-prop-card-status">${isOcc?'Occupied':'Available'}</div>
+    </div>`;
+  }).join('');
+
+  // \u2500\u2500 TODAY ACTIVITY (2-col) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  const makeActItem=b=>`<div style="margin-bottom:7px;cursor:pointer" onclick="openBookingDrawer('${b.id}')">
+    <div class="today-act-guest">${esc(b.guest)}</div>
+    <div class="today-act-prop" style="color:${propertyColor(b.property)}">${esc(propName(b.property))}</div>
+    <div class="today-act-dates">${fmtDate(b.checkin)} \u2013 ${fmtDate(b.checkout)}</div>
+  </div>`;
+  const ciItems=checkIns.length?checkIns.map(makeActItem).join(''):`<div style="font-size:11px;color:var(--text-3)">None today</div>`;
+  const coItems=checkOuts.length?checkOuts.map(makeActItem).join(''):`<div style="font-size:11px;color:var(--text-3)">None today</div>`;
+
+  document.getElementById('todaySections').innerHTML=`
+    ${properties.length?`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:700;color:var(--text)">Properties</span><span style="font-size:11px;color:var(--text-3)">${properties.length} total</span></div>
+    <div class="today-prop-grid">${propGrid}</div>`:''}
+    <div class="today-activity-grid">
+      <div class="today-activity-card">
+        <div class="today-act-label"><div class="today-act-dot" style="background:#10B981"></div>Arriving</div>
+        ${ciItems}
+      </div>
+      <div class="today-activity-card">
+        <div class="today-act-label"><div class="today-act-dot" style="background:#F59E0B"></div>Departing</div>
+        ${coItems}
+      </div>
+    </div>`;
+
+  // \u2500\u2500 ACTIVE NOW \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  const tl=[...active.filter(b=>!checkIns.find(c=>c.id===b.id)&&!checkOuts.find(c=>c.id===b.id)),...checkIns,...checkOuts];
+  const activeRows=tl.length?tl.map(b=>{
+    const isIn=b.checkin===today,isOut=b.checkout===today;
+    const pc=propertyColor(b.property);
+    return`<div class="today-active-row" onclick="openBookingDrawer('${b.id}')">
+      <div style="width:10px;height:10px;border-radius:50%;background:${pc};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.01em">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div>
+        <div style="font-size:10px;font-weight:600;color:${pc}">${esc(propName(b.property))} \u00b7 ${isIn?'Check-in Today':isOut?'Check-out Today':'Active stay'}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">${statusBadgeHtml(b.status)}<div style="font-size:10px;color:var(--text-3);margin-top:3px">${fmtDate(b.checkin)}\u2192${fmtDate(b.checkout)}</div></div>
+    </div>`;
+  }).join(''):`<div style="padding:14px 14px;font-size:12px;color:var(--text-3)">No active stays today</div>`;
+
+  document.getElementById('todayTimeline').innerHTML=`<div class="today-active-wrap">
+    <div class="today-active-hdr">\ud83d\udd25 Today's Overview<span class="today-active-badge">${tl.length} STAY${tl.length!==1?'S':''}</span></div>
+    ${activeRows}
+  </div>`;
 }
 
 // ============================================================

@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloomstone PMS — Responsive Redesign Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f0ec;
+    padding: 48px 32px;
+    color: #1a1a1a;
+    min-width: 1340px;
+  }
+
+  h1.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .page-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 56px;
+  }
+
+  /* Section wrapper */
+  .section {
+    margin-bottom: 72px;
+  }
+  .section-label {
+    display: inline-block;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    letter-spacing: 0.2px;
+  }
+
+  /* ============================================================
+     BROWSER CHROME
+  ============================================================ */
+  .browser-chrome {
+    width: 1280px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    border: 1px solid #d0d0d0;
+  }
+  .browser-chrome .chrome-bar {
+    height: 44px;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    border-bottom: 1px solid #d0d0d0;
+  }
+  .chrome-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .chrome-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .chrome-dots .dot-red { background: #ff5f57; }
+  .chrome-dots .dot-yellow { background: #ffbd2e; }
+  .chrome-dots .dot-green { background: #28c840; }
+  .chrome-url {
+    flex: 1;
+    height: 26px;
+    background: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 12px;
+    color: #666;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .chrome-url .lock { margin-right: 6px; color: #28c840; font-size: 11px; }
+
+  .browser-body {
+    display: flex;
+    height: 636px;
+    background: #f7f7f5;
+  }
+
+  /* ============================================================
+     SIDEBAR
+  ============================================================ */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: #1a56db;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 700;
+  }
+  .logo-text {
+    font-size: 15px; font-weight: 700; color: #1a1a1a;
+    letter-spacing: -0.3px;
+  }
+  .logo-sub { font-size: 10px; color: #999; font-weight: 400; }
+
+  .sidebar-nav {
+    padding: 12px 10px;
+    flex: 1;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+  .nav-item.active {
+    background: #eff3fd;
+    color: #1a56db;
+    font-weight: 600;
+  }
+  .nav-item .nav-icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .nav-badge {
+    margin-left: auto;
+    background: #1a56db;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: #1a56db;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 12px; font-weight: 700;
+  }
+  .user-info { font-size: 12px; }
+  .user-name { font-weight: 600; color: #1a1a1a; }
+  .user-role { color: #999; font-size: 11px; }
+
+  /* ============================================================
+     MAIN CONTENT
+  ============================================================ */
+  .main-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: #f7f7f5;
+  }
+
+  .content-header {
+    height: 60px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+  }
+  .content-title {
+    font-size: 16px; font-weight: 700; color: #1a1a1a;
+    flex: 1;
+  }
+  .header-btn {
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer;
+  }
+  .header-btn.primary { background: #1a56db; color: #fff; }
+  .header-btn.secondary { background: #f0f0f0; color: #444; border: 1px solid #e0e0e0; }
+
+  .bookings-table {
+    padding: 20px;
+  }
+  .table-wrapper {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    overflow: hidden;
+  }
+  .table-header-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 160px 120px 100px 90px 80px;
+    padding: 10px 16px;
+    background: #f7f7f5;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    gap: 8px;
+  }
+  .table-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 160px 120px 100px 90px 80px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    align-items: center;
+    gap: 8px;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: #f9f9f8; }
+  .guest-info .name { font-weight: 600; color: #1a1a1a; font-size: 13px; }
+  .guest-info .prop { font-size: 11px; color: #888; margin-top: 1px; }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .platform-dot.airbnb { background: #ff5a5f; }
+  .platform-dot.booking { background: #003580; }
+  .platform-dot.direct { background: #28a745; }
+  .status-pill {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-pill.confirmed { background: #d1fae5; color: #065f46; }
+  .status-pill.pending { background: #fef3c7; color: #92400e; }
+  .status-pill.checkin { background: #dbeafe; color: #1e40af; }
+
+  /* ============================================================
+     SECTION 1 — PROBLEM DRAWER
+  ============================================================ */
+  .problem-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 10;
+  }
+  .problem-drawer {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+  }
+  .problem-drawer-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .problem-drawer-header h2 { font-size: 18px; font-weight: 700; flex: 1; }
+  .close-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #666; cursor: pointer;
+  }
+  .problem-drawer-body {
+    padding: 24px 28px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .problem-field-row {
+    margin-bottom: 20px;
+  }
+  .field-label {
+    font-size: 11px; font-weight: 600; color: #666;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .big-input {
+    width: 100%;
+    height: 52px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 28px; /* THE PROBLEM */
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  .normal-input {
+    width: 100%;
+    height: 40px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Tiny date picker popup */
+  .datepicker-popup {
+    position: absolute;
+    top: 220px;
+    left: 80px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 30;
+    display: flex;
+    gap: 8px;
+  }
+  .tiny-cal {
+    width: 140px;
+  }
+  .tiny-cal-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #1a1a1a;
+  }
+  .tiny-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+  }
+  .tiny-cell {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: #333;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .tiny-cell.header { color: #999; font-weight: 600; }
+  .tiny-cell.selected { background: #1a56db; color: #fff; border-radius: 3px; }
+  .tiny-cell.range { background: #dbeafe; }
+  .tiny-cell.past { color: #ccc; }
+  .tiny-cell.empty { background: transparent; }
+
+  /* ============================================================
+     ANNOTATION BADGES
+  ============================================================ */
+  .annotation-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  .annotations {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+  }
+  .ann-badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .ann-pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    line-height: 1.3;
+  }
+  .ann-pill.red { background: #dc2626; color: #fff; }
+  .ann-pill.green { background: #16a34a; color: #fff; }
+  .ann-arrow {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .ann-arrow.red { color: #dc2626; }
+  .ann-arrow.green { color: #16a34a; }
+
+  /* ============================================================
+     SECTION 2 — IMPROVED DESKTOP
+  ============================================================ */
+  .improved-drawer {
+    position: absolute;
+    top: 0; right: 0; width: 520px; bottom: 0;
+    background: #fff;
+    border-left: 1px solid #e0e0e0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  }
+  .drawer-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .drawer-header h2 { font-size: 16px; font-weight: 700; flex: 1; color: #1a1a1a; }
+  .drawer-header .booking-id { font-size: 11px; color: #999; font-weight: 400; }
+
+  .drawer-body {
+    flex: 1;
+    overflow: hidden;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 16px;
+  }
+  .drawer-left { display: flex; flex-direction: column; gap: 12px; }
+  .drawer-right { display: flex; flex-direction: column; gap: 12px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label {
+    font-size: 10px; font-weight: 700; color: #888;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-input {
+    height: 36px;
+    border: 1.5px solid #e4e4e4;
+    border-radius: 7px;
+    padding: 0 11px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+    width: 100%;
+  }
+  .form-input:focus { outline: none; border-color: #1a56db; }
+  .form-input.guest-name-improved { font-size: 14px; font-weight: 600; }
+
+  .platform-pills {
+    display: flex; gap: 5px; flex-wrap: wrap;
+  }
+  .platform-pill {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    border: 1.5px solid transparent;
+  }
+  .platform-pill.active-airbnb { background: #fff1f2; color: #be185d; border-color: #fb7185; }
+  .platform-pill.inactive { background: #f3f4f6; color: #666; border-color: #e5e7eb; }
+
+  .prop-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .nightly-rate-box {
+    background: #f7f9ff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .nightly-label { font-size: 9px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+  .nightly-value { font-size: 22px; font-weight: 800; color: #1a56db; margin: 3px 0; letter-spacing: -1px; }
+  .nightly-sub { font-size: 10px; color: #9ca3af; }
+
+  /* Inline calendar in drawer */
+  .inline-cal-wrapper {
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .inline-cal-title {
+    font-size: 10px; font-weight: 700; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .nights-badge {
+    display: inline-flex; align-items: center;
+    background: #1a56db; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    margin-bottom: 6px;
+  }
+  .mini-2month {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .mini-month-col {}
+  .mini-month-header {
+    text-align: center;
+    font-size: 10px; font-weight: 700; color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  .mini-month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+  }
+  .mc {
+    height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #374151;
+    border-radius: 3px;
+  }
+  .mc.hdr { color: #9ca3af; font-weight: 600; font-size: 8px; }
+  .mc.sel { background: #1a56db; color: #fff; border-radius: 50%; }
+  .mc.rng { background: #dbeafe; color: #1e40af; }
+  .mc.today { border: 1.5px solid #1a56db; color: #1a56db; border-radius: 50%; }
+  .mc.past { color: #d1d5db; }
+  .mc.empty {}
+
+  .revenue-card {
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .rev-label { font-size: 9px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .rev-row { display: flex; justify-content: space-between; font-size: 10px; color: #4b5563; margin-bottom: 3px; }
+  .rev-total { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #15803d; margin-top: 6px; padding-top: 6px; border-top: 1px solid #bbf7d0; }
+
+  .drawer-footer {
+    padding: 12px 18px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .footer-btn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .footer-btn.del { background: #fff; color: #dc2626; border: 1.5px solid #fecaca; }
+  .footer-btn.cancel { background: #f3f4f6; color: #6b7280; border: 1.5px solid #e5e7eb; }
+  .footer-btn.print { background: #f3f4f6; color: #374151; border: 1.5px solid #e5e7eb; }
+  .footer-btn.save { background: #1a56db; color: #fff; border: none; margin-left: auto; padding: 0 20px; }
+
+  /* Dimmed main for section 2 */
+  .dimmed-main {
+    position: absolute;
+    top: 0; left: 0; right: 520px; bottom: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 10;
+    backdrop-filter: blur(2px);
+  }
+
+  /* ============================================================
+     SECTION 3 — PHONE
+  ============================================================ */
+  .phone-frame-wrapper {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+  }
+  .phone-frame {
+    width: 390px;
+    height: 780px;
+    background: #000;
+    border-radius: 44px;
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 2px #333;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 32px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-status-bar {
+    height: 44px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 12px; color: #1a1a1a; }
+
+  .phone-datepicker {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+  }
+  .phone-dp-header {
+    padding: 12px 20px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+  .phone-dp-title { font-size: 17px; font-weight: 700; flex: 1; color: #1a1a1a; }
+  .phone-close {
+    width: 30px; height: 30px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #666;
+  }
+
+  .phone-month-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px 6px;
+    flex-shrink: 0;
+  }
+  .month-nav-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #374151; cursor: pointer;
+  }
+  .month-nav-label { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+
+  .phone-weekday-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 0 12px;
+    flex-shrink: 0;
+  }
+  .wday {
+    height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #9ca3af;
+  }
+
+  .phone-cal-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px;
+  }
+  .phone-month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 16px;
+  }
+  .phone-month-label {
+    font-size: 13px; font-weight: 700; color: #1a1a1a;
+    padding: 8px 0 4px;
+    text-align: center;
+  }
+  .pd {
+    height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: #374151;
+    border-radius: 22px;
+    cursor: pointer;
+    position: relative;
+  }
+  .pd.empty { background: transparent; }
+  .pd.past { color: #9ca3af; }
+  .pd.past-selectable { color: #c4c9d0; }
+  .pd.today { border: 2px solid #1a56db; color: #1a56db; border-radius: 50%; }
+  .pd.sel { background: #1a56db; color: #fff; border-radius: 50%; font-weight: 700; }
+  .pd.rng { background: #dbeafe; color: #1e40af; border-radius: 0; }
+  .pd.rng-start { background: linear-gradient(to right, #fff 50%, #dbeafe 50%); }
+  .pd.rng-end { background: linear-gradient(to left, #fff 50%, #dbeafe 50%); }
+  .pd.sel.rng-start-inner { position: relative; }
+
+  /* Range with circle overlay approach */
+  .pd-wrapper {
+    position: relative;
+    height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pd-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
+  .pd-bg.rng-bg { background: #dbeafe; }
+  .pd-bg.rng-start-bg { background: linear-gradient(to right, transparent 50%, #dbeafe 50%); }
+  .pd-bg.rng-end-bg { background: linear-gradient(to left, transparent 50%, #dbeafe 50%); }
+  .pd-num {
+    position: relative;
+    z-index: 1;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #374151;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .pd-num.sel-num { background: #1a56db; color: #fff; font-weight: 700; }
+  .pd-num.today-num { border: 2px solid #1a56db; color: #1a56db; font-weight: 600; }
+  .pd-num.past-num { color: #c4c9d0; }
+  .pd-num.rng-num { color: #1e40af; font-weight: 500; }
+  .pd-num.normal-num { color: #374151; }
+
+  .phone-dp-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .footer-dates-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .footer-date-chip {
+    flex: 1;
+    background: #f7f9ff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .footer-date-chip .chip-label { color: #9ca3af; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .footer-date-chip .chip-value { font-weight: 700; color: #1a56db; font-size: 13px; margin-top: 2px; }
+  .nights-pill-center {
+    background: #1a56db; color: #fff;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px; font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .confirm-btn {
+    width: 100%;
+    height: 44px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  /* ============================================================
+     SECTION 4 — DESKTOP INLINE DATE PICKER CLOSEUP
+  ============================================================ */
+  .desktop-dp-frame {
+    width: 640px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    padding: 20px;
+  }
+  .dp-section-label {
+    font-size: 10px; font-weight: 700; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.7px;
+    margin-bottom: 12px;
+  }
+
+  .date-trigger-row {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .date-trigger-btn {
+    height: 42px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #9ca3af;
+    background: #f9fafb;
+    cursor: pointer;
+  }
+  .date-trigger-btn.has-date { color: #1a56db; font-weight: 600; border-color: #bfdbfe; background: #f0f6ff; }
+  .date-trigger-icon { font-size: 14px; }
+  .date-trigger-arrow { text-align: center; font-size: 18px; color: #d1d5db; }
+
+  .desktop-inline-cal {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .desktop-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .desktop-cal-nav-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #374151; cursor: pointer;
+  }
+  .desktop-cal-months { display: flex; gap: 48px; align-items: center; }
+  .desktop-cal-month-title { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+
+  .desktop-cal-body {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    background: #fff;
+  }
+  .desktop-cal-divider { background: #e5e7eb; }
+  .desktop-month-section { padding: 12px 14px; }
+  .desktop-month-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 4px;
+  }
+  .dw {
+    height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: #9ca3af;
+  }
+  .desktop-day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .dd-wrapper {
+    position: relative;
+    height: 38px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dd-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
+  .dd-bg.rng-bg { background: #dbeafe; }
+  .dd-bg.rng-start-bg { background: linear-gradient(to right, transparent 50%, #dbeafe 50%); }
+  .dd-bg.rng-end-bg { background: linear-gradient(to left, transparent 50%, #dbeafe 50%); }
+  .dd-num {
+    position: relative; z-index: 1;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #374151;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .dd-num:hover { background: #f3f4f6; }
+  .dd-num.sel-d { background: #1a56db; color: #fff; font-weight: 700; }
+  .dd-num.rng-d { color: #1e40af; font-weight: 500; }
+  .dd-num.today-d { border: 1.5px solid #1a56db; color: #1a56db; }
+  .dd-num.past-d { color: #d1d5db; }
+  .dd-num.empty-d { visibility: hidden; }
+
+  .cal-footer-row {
+    padding: 10px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cal-footer-info {
+    flex: 1;
+    font-size: 12px;
+    color: #374151;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cal-footer-info .check-icon { color: #16a34a; font-size: 13px; }
+  .cal-footer-info .range-text { font-weight: 600; color: #1a1a1a; }
+  .cal-footer-info .sub-text { color: #6b7280; font-size: 11px; }
+  .cal-clear-btn {
+    height: 28px;
+    padding: 0 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    display: flex; align-items: center; gap: 4px;
+    cursor: pointer;
+  }
+
+  /* ============================================================
+     ANNOTATIONS ABSOLUTE
+  ============================================================ */
+  .rel-pos { position: relative; }
+
+  .ann-float {
+    position: absolute;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 100;
+  }
+  .ann-float .ann-pill {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    font-size: 11px;
+  }
+  .ann-line {
+    width: 2px;
+    background: currentColor;
+    position: absolute;
+  }
+
+  /* Phone annotation layout */
+  .phone-section-layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+  .phone-annotations-col {
+    padding-top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 280px;
+  }
+  .ann-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .ann-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .ann-dot.green { background: #16a34a; }
+  .ann-dot.red { background: #dc2626; }
+  .ann-text { font-size: 12px; color: #374151; line-height: 1.5; }
+  .ann-text strong { display: block; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+
+  /* Problem annotation layout */
+  .problem-annotations-col {
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 280px;
+  }
+
+  /* Section frames/containers */
+  .section-frame {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+  .section-frame-annotations {
+    padding-top: 40px;
+    width: 300px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     SCROLLBAR
+  ============================================================ */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Bloomstone PMS — Responsive Redesign</h1>
+<p class="page-subtitle">Visual mockup · Desktop + Mobile · Date picker improvements · Inter font</p>
+
+<!-- ================================================================
+     SECTION 1 — CURRENT PROBLEMS
+================================================================ -->
+<div class="section">
+  <div class="section-label">❌ SECTION 1 — CURRENT PROBLEMS (desktop)</div>
+
+  <div class="section-frame">
+    <!-- Browser Frame -->
+    <div class="rel-pos" style="flex-shrink:0;">
+      <div class="browser-chrome">
+        <div class="chrome-bar">
+          <div class="chrome-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="chrome-url">
+            <span class="lock">🔒</span>
+            bloomstoneph.github.io/bloomstone
+          </div>
+        </div>
+        <div class="browser-body">
+          <!-- Sidebar -->
+          <div class="sidebar">
+            <div class="sidebar-logo">
+              <div class="logo-icon">B</div>
+              <div>
+                <div class="logo-text">Bloomstone</div>
+                <div class="logo-sub">Property Management</div>
+              </div>
+            </div>
+            <div class="sidebar-nav">
+              <div class="nav-item"><span class="nav-icon">📅</span> Today</div>
+              <div class="nav-item active"><span class="nav-icon">📋</span> Operations <span class="nav-badge">3</span></div>
+              <div class="nav-item"><span class="nav-icon">💰</span> Finance</div>
+              <div class="nav-item"><span class="nav-icon">🏠</span> Properties</div>
+              <div class="nav-item"><span class="nav-icon">📊</span> Reports</div>
+              <div class="nav-item"><span class="nav-icon">⚙️</span> System</div>
+            </div>
+            <div class="sidebar-footer">
+              <div class="sidebar-user">
+                <div class="user-avatar">A</div>
+                <div class="user-info">
+                  <div class="user-name">Admin</div>
+                  <div class="user-role">Manager</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main (with full-width drawer showing problems) -->
+          <div class="main-content">
+            <div class="content-header">
+              <div class="content-title">Bookings</div>
+              <div class="header-btn secondary">Filter</div>
+              <div class="header-btn primary">+ New Booking</div>
+            </div>
+
+            <!-- Full width problem drawer -->
+            <div style="position:relative;flex:1;height:576px;">
+              <!-- Faint table beneath -->
+              <div style="padding:16px;opacity:0.3;">
+                <div class="table-wrapper">
+                  <div class="table-header-row" style="font-size:11px;">
+                    <div>☐</div><div>Guest</div><div>Dates</div><div>Property</div><div>Platform</div><div>Total</div><div>Status</div>
+                  </div>
+                  <div class="table-row">
+                    <div>☐</div>
+                    <div class="guest-info"><div class="name">Dwight Schrute</div><div class="prop">2BR Aurora</div></div>
+                    <div style="font-size:12px;color:#555;">May 18–21</div>
+                    <div style="font-size:12px;">2BR Aurora</div>
+                    <div style="font-size:12px;"><span class="platform-dot airbnb"></span>Airbnb</div>
+                    <div style="font-size:12px;font-weight:600;">₱7,500</div>
+                    <div><span class="status-pill confirmed">Confirmed</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PROBLEM DRAWER — full width -->
+              <div class="problem-drawer">
+                <div class="problem-drawer-header">
+                  <h2>New Booking</h2>
+                  <div class="close-btn">✕</div>
+                </div>
+                <div class="problem-drawer-body" style="position:relative;">
+                  <div class="problem-field-row">
+                    <div class="field-label">Guest Name</div>
+                    <!-- PROBLEM: 28px font -->
+                    <div style="width:100%;height:52px;border:1.5px solid #e0e0e0;border-radius:8px;padding:0 16px;font-size:28px;font-family:Inter,sans-serif;display:flex;align-items:center;color:#1a1a1a;background:#fff;">
+                      Michael Scott
+                    </div>
+                  </div>
+
+                  <div class="field-row-2">
+                    <div>
+                      <div class="field-label">Check-in Date</div>
+                      <div style="height:40px;border:2px solid #1a56db;border-radius:8px;padding:0 14px;font-size:14px;font-family:Inter,sans-serif;display:flex;align-items:center;gap:8px;background:#f0f6ff;color:#1a56db;font-weight:600;">
+                        📅 May 22, 2026
+                      </div>
+                    </div>
+                    <div>
+                      <div class="field-label">Check-out Date</div>
+                      <div style="height:40px;border:1.5px solid #e0e0e0;border-radius:8px;padding:0 14px;font-size:14px;font-family:Inter,sans-serif;display:flex;align-items:center;gap:8px;color:#999;">
+                        📅 Select date
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TINY date picker POPUP — PROBLEM -->
+                  <div class="datepicker-popup">
+                    <!-- May 2026 tiny -->
+                    <div class="tiny-cal">
+                      <div class="tiny-cal-header">May 2026</div>
+                      <div class="tiny-cal-grid">
+                        <div class="tiny-cell header">Su</div>
+                        <div class="tiny-cell header">Mo</div>
+                        <div class="tiny-cell header">Tu</div>
+                        <div class="tiny-cell header">We</div>
+                        <div class="tiny-cell header">Th</div>
+                        <div class="tiny-cell header">Fr</div>
+                        <div class="tiny-cell header">Sa</div>
+                        <!-- Week 1 -->
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell">1</div>
+                        <div class="tiny-cell">2</div>
+                        <!-- Week 2 -->
+                        <div class="tiny-cell">3</div>
+                        <div class="tiny-cell">4</div>
+                        <div class="tiny-cell">5</div>
+                        <div class="tiny-cell">6</div>
+                        <div class="tiny-cell">7</div>
+                        <div class="tiny-cell">8</div>
+                        <div class="tiny-cell">9</div>
+                        <!-- Week 3 -->
+                        <div class="tiny-cell">10</div>
+                        <div class="tiny-cell">11</div>
+                        <div class="tiny-cell">12</div>
+                        <div class="tiny-cell">13</div>
+                        <div class="tiny-cell">14</div>
+                        <div class="tiny-cell">15</div>
+                        <div class="tiny-cell">16</div>
+                        <!-- Week 4 -->
+                        <div class="tiny-cell past">17</div>
+                        <div class="tiny-cell past">18</div>
+                        <div class="tiny-cell past">19</div>
+                        <div class="tiny-cell past">20</div>
+                        <div class="tiny-cell past">21</div>
+                        <div class="tiny-cell selected">22</div>
+                        <div class="tiny-cell range">23</div>
+                        <!-- Week 5 -->
+                        <div class="tiny-cell range">24</div>
+                        <div class="tiny-cell selected">25</div>
+                        <div class="tiny-cell">26</div>
+                        <div class="tiny-cell">27</div>
+                        <div class="tiny-cell">28</div>
+                        <div class="tiny-cell">29</div>
+                        <div class="tiny-cell">30</div>
+                        <div class="tiny-cell">31</div>
+                      </div>
+                    </div>
+                    <!-- June 2026 tiny -->
+                    <div class="tiny-cal">
+                      <div class="tiny-cal-header">June 2026</div>
+                      <div class="tiny-cal-grid">
+                        <div class="tiny-cell header">Su</div>
+                        <div class="tiny-cell header">Mo</div>
+                        <div class="tiny-cell header">Tu</div>
+                        <div class="tiny-cell header">We</div>
+                        <div class="tiny-cell header">Th</div>
+                        <div class="tiny-cell header">Fr</div>
+                        <div class="tiny-cell header">Sa</div>
+                        <div class="tiny-cell empty"></div>
+                        <div class="tiny-cell">1</div>
+                        <div class="tiny-cell">2</div>
+                        <div class="tiny-cell">3</div>
+                        <div class="tiny-cell">4</div>
+                        <div class="tiny-cell">5</div>
+                        <div class="tiny-cell">6</div>
+                        <div class="tiny-cell">7</div>
+                        <div class="tiny-cell">8</div>
+                        <div class="tiny-cell">9</div>
+                        <div class="tiny-cell">10</div>
+                        <div class="tiny-cell">11</div>
+                        <div class="tiny-cell">12</div>
+                        <div class="tiny-cell">13</div>
+                        <div class="tiny-cell">14</div>
+                        <div class="tiny-cell">15</div>
+                        <div class="tiny-cell">16</div>
+                        <div class="tiny-cell">17</div>
+                        <div class="tiny-cell">18</div>
+                        <div class="tiny-cell">19</div>
+                        <div class="tiny-cell">20</div>
+                        <div class="tiny-cell">21</div>
+                        <div class="tiny-cell">22</div>
+                        <div class="tiny-cell">23</div>
+                        <div class="tiny-cell">24</div>
+                        <div class="tiny-cell">25</div>
+                        <div class="tiny-cell">26</div>
+                        <div class="tiny-cell">27</div>
+                        <div class="tiny-cell">28</div>
+                        <div class="tiny-cell">29</div>
+                        <div class="tiny-cell">30</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field-row-2" style="margin-top:0;">
+                    <div>
+                      <div class="field-label">Property</div>
+                      <div class="normal-input" style="display:flex;align-items:center;font-size:14px;color:#1a1a1a;">2BR Town House Aurora</div>
+                    </div>
+                    <div>
+                      <div class="field-label">Platform</div>
+                      <div class="normal-input" style="display:flex;align-items:center;font-size:14px;color:#1a1a1a;">Airbnb</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Red annotation badges -->
+      <!-- Arrow 1: Too wide -->
+      <div style="position:absolute;top:90px;left:300px;z-index:200;pointer-events:none;display:flex;align-items:center;gap:6px;">
+        <div style="background:#dc2626;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(220,38,38,0.4);">
+          ← Too wide — form stretched to full page
+        </div>
+        <div style="font-size:18px;color:#dc2626;">↓</div>
+      </div>
+
+      <!-- Arrow 2: Tiny date cells -->
+      <div style="position:absolute;top:268px;left:520px;z-index:200;pointer-events:none;display:flex;align-items:center;gap:6px;">
+        <div style="font-size:18px;color:#dc2626;">←</div>
+        <div style="background:#dc2626;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(220,38,38,0.4);">
+          Tiny date cells — hard to click (~18px)
+        </div>
+      </div>
+
+      <!-- Arrow 3: Popup covers form -->
+      <div style="position:absolute;top:320px;left:70px;z-index:200;pointer-events:none;display:flex;align-items:center;gap:6px;">
+        <div style="font-size:18px;color:#dc2626;">↓</div>
+        <div style="background:#dc2626;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(220,38,38,0.4);">
+          Popup covers form fields below
+        </div>
+      </div>
+
+      <!-- Arrow 4: Big font -->
+      <div style="position:absolute;top:124px;right:-10px;z-index:200;pointer-events:none;display:flex;align-items:center;gap:6px;transform:translateX(100%);">
+        <div style="font-size:18px;color:#dc2626;">←</div>
+        <div style="background:#dc2626;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(220,38,38,0.4);">
+          28px font input — too large
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotation column -->
+    <div class="section-frame-annotations">
+      <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">Problems identified</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="ann-item">
+          <div class="ann-dot red"></div>
+          <div class="ann-text"><strong>Form stretches 1040px wide</strong> Reading across the full content area is exhausting and creates huge empty areas.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot red"></div>
+          <div class="ann-text"><strong>Date cells ~18px tall</strong> Impossible to reliably click the correct date, especially on laptops.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot red"></div>
+          <div class="ann-text"><strong>Popup overlaps the form</strong> Opening the date picker hides other fields, forcing the user to remember what they entered.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot red"></div>
+          <div class="ann-text"><strong>28px guest name font</strong> Looks like a heading, not an input. Breaks visual hierarchy.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     SECTION 2 — IMPROVED DESKTOP LAYOUT
+================================================================ -->
+<div class="section">
+  <div class="section-label">✅ SECTION 2 — IMPROVED DESKTOP LAYOUT</div>
+
+  <!-- Two 620px frames side by side -->
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:nowrap;">
+
+    <!-- ====== LEFT FRAME — Drawer top half ====== -->
+    <div style="flex-shrink:0;">
+      <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:8px;letter-spacing:0.2px;">① Top of drawer — booking details</div>
+      <div style="position:relative;display:inline-block;">
+        <!-- Browser chrome 620px -->
+        <div style="width:620px;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.18);border:1px solid #d0d0d0;">
+          <!-- Chrome bar -->
+          <div style="height:44px;background:#e8e8e8;display:flex;align-items:center;padding:0 16px;gap:12px;border-bottom:1px solid #d0d0d0;">
+            <div style="display:flex;gap:6px;">
+              <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#ffbd2e;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+            </div>
+            <div style="flex:1;height:26px;background:#fff;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#666;max-width:340px;margin:0 auto;">
+              <span style="margin-right:6px;color:#28c840;font-size:11px;">🔒</span>bloomstoneph.github.io/bloomstone
+            </div>
+          </div>
+          <!-- Browser body -->
+          <div style="display:flex;height:660px;background:#f7f7f5;position:relative;">
+            <!-- Mini sidebar -->
+            <div style="width:155px;flex-shrink:0;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column;">
+              <div style="padding:14px 12px 12px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;">
+                <div style="width:26px;height:26px;background:#1a56db;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">B</div>
+                <div style="font-size:12px;font-weight:700;color:#1a1a1a;">Bloomstone</div>
+              </div>
+              <div style="padding:10px 8px;flex:1;">
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">📅 Today</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;color:#1a56db;background:#eff3fd;margin-bottom:2px;">📋 Operations</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">💰 Finance</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">🏠 Properties</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;">📊 Reports</div>
+              </div>
+            </div>
+            <!-- Main (dimmed behind drawer) -->
+            <div style="flex:1;overflow:hidden;position:relative;background:#f7f7f5;">
+              <div style="height:50px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 14px;gap:10px;">
+                <div style="font-size:14px;font-weight:700;color:#1a1a1a;flex:1;">Bookings</div>
+                <div style="height:28px;padding:0 10px;border-radius:6px;font-size:11px;font-weight:600;background:#f0f0f0;color:#444;border:1px solid #e0e0e0;display:flex;align-items:center;">Filter</div>
+              </div>
+              <div style="padding:12px;opacity:0.2;">
+                <div style="background:#fff;border-radius:8px;border:1px solid #e8e8e8;overflow:hidden;font-size:11px;">
+                  <div style="padding:7px 10px;background:#f7f7f5;border-bottom:1px solid #e8e8e8;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;font-size:9px;">Guest · Dates · Status</div>
+                  <div style="padding:8px 10px;border-bottom:1px solid #f0f0f0;"><strong>Michael Scott</strong> · May 22–25 · <span style="color:#1e40af;">Check-in</span></div>
+                  <div style="padding:8px 10px;"><strong>Dwight Schrute</strong> · May 26–30 · <span style="color:#065f46;">Confirmed</span></div>
+                </div>
+              </div>
+              <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.22);backdrop-filter:blur(1px);"></div>
+            </div>
+
+            <!-- DRAWER — top half -->
+            <div style="position:absolute;top:0;right:0;width:345px;bottom:0;background:#fff;border-left:1px solid #e0e0e0;z-index:20;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,0.1);">
+              <!-- Header -->
+              <div style="padding:12px 15px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <div style="flex:1;">
+                  <div style="font-size:15px;font-weight:700;color:#1a1a1a;">New Booking</div>
+                  <div style="font-size:10px;color:#9ca3af;margin-top:1px;">#BK-2026-089 · <span style="background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;">Draft</span></div>
+                </div>
+                <div style="width:27px;height:27px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#666;">✕</div>
+              </div>
+
+              <!-- Body — top portion -->
+              <div style="flex:1;overflow:hidden;padding:12px 13px;display:grid;grid-template-columns:1fr 148px;gap:11px;">
+                <!-- Left col -->
+                <div style="display:flex;flex-direction:column;gap:9px;overflow:hidden;">
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Guest Name</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;">Michael Scott</div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Property</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;gap:6px;">
+                      <span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>2BR Town House Aurora
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Platform</div>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                      <span style="height:24px;padding:0 8px;border-radius:12px;font-size:10px;font-weight:600;background:#fff1f2;color:#be185d;border:1.5px solid #fb7185;display:inline-flex;align-items:center;">🏠 Airbnb</span>
+                      <span style="height:24px;padding:0 8px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#666;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">Booking.com</span>
+                      <span style="height:24px;padding:0 8px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#666;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">Direct</span>
+                      <span style="height:24px;padding:0 8px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#666;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">+More</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Payment Method</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;">GCash — ₱7,248 paid</div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Booking Status</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;gap:6px;">
+                      <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;"></span>Check-in Today
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Promo / Discount</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#9ca3af;background:#fff;display:flex;align-items:center;">e.g. 10% off weekend</div>
+                  </div>
+                  <div>
+                    <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Service Fee</div>
+                    <div style="height:33px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;justify-content:space-between;">
+                      <span>₱252.00</span><span style="font-size:9px;color:#9ca3af;">auto: 3%+12% VAT</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Right col -->
+                <div style="display:flex;flex-direction:column;gap:9px;">
+                  <!-- Nightly rate -->
+                  <div style="background:#f7f9ff;border:1.5px solid #dbeafe;border-radius:8px;padding:9px 10px;text-align:center;">
+                    <div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Nightly Rate</div>
+                    <div style="font-size:20px;font-weight:800;color:#1a56db;margin:3px 0;letter-spacing:-0.5px;">₱2,500</div>
+                    <div style="font-size:9px;color:#9ca3af;">per night</div>
+                  </div>
+                  <!-- 2-month mini cal -->
+                  <div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 8px;">
+                    <div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Date Range</div>
+                    <div style="display:inline-flex;align-items:center;background:#1a56db;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;margin-bottom:5px;">3 nights</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                      <!-- May mini -->
+                      <div>
+                        <div style="text-align:center;font-size:9px;font-weight:700;color:#1a1a1a;margin-bottom:2px;">May 2026</div>
+                        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;">
+                          <div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">S</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">M</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">T</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">W</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">T</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">F</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">S</div>
+                          <div style="height:13px;"></div><div style="height:13px;"></div><div style="height:13px;"></div><div style="height:13px;"></div><div style="height:13px;"></div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">1</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">2</div>
+                          <div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">3</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">4</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">5</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">6</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">7</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">8</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">9</div>
+                          <div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">10</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">11</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">12</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">13</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">14</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">15</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">16</div>
+                          <div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">17</div><div style="height:13px;font-size:7px;color:#d1d5db;display:flex;align-items:center;justify-content:center;">18</div><div style="height:13px;font-size:7px;border:1px solid #1a56db;border-radius:50%;color:#1a56db;display:flex;align-items:center;justify-content:center;">19</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">20</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">21</div><div style="height:13px;font-size:7px;background:#1a56db;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;">22</div><div style="height:13px;font-size:7px;background:#dbeafe;color:#1e40af;display:flex;align-items:center;justify-content:center;">23</div>
+                          <div style="height:13px;font-size:7px;background:#dbeafe;color:#1e40af;display:flex;align-items:center;justify-content:center;">24</div><div style="height:13px;font-size:7px;background:#1a56db;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;">25</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">26</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">27</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">28</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">29</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">30</div>
+                          <div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">31</div>
+                        </div>
+                      </div>
+                      <!-- Jun mini -->
+                      <div>
+                        <div style="text-align:center;font-size:9px;font-weight:700;color:#1a1a1a;margin-bottom:2px;">Jun 2026</div>
+                        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;">
+                          <div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">S</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">M</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">T</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">W</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">T</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">F</div><div style="height:13px;font-size:7px;color:#9ca3af;font-weight:600;display:flex;align-items:center;justify-content:center;">S</div>
+                          <div style="height:13px;"></div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">1</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">2</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">3</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">4</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">5</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">6</div>
+                          <div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">7</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">8</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">9</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">10</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">11</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">12</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">13</div>
+                          <div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">14</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">15</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">16</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">17</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">18</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">19</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">20</div>
+                          <div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">21</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">22</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">23</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">24</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">25</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">26</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">27</div>
+                          <div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">28</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">29</div><div style="height:13px;font-size:7px;color:#374151;display:flex;align-items:center;justify-content:center;">30</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Revenue card -->
+                  <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:9px 10px;">
+                    <div style="font-size:8px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Revenue Breakdown</div>
+                    <div style="display:flex;justify-content:space-between;font-size:9px;color:#4b5563;margin-bottom:2px;"><span>3 nights × ₱2,500</span><span>₱7,500</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:9px;color:#4b5563;margin-bottom:2px;"><span>Airbnb fee (3.2%)</span><span style="color:#dc2626;">−₱252</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:9px;color:#4b5563;margin-bottom:2px;"><span>Promo discount</span><span style="color:#6b7280;">—</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:#15803d;margin-top:5px;padding-top:5px;border-top:1px solid #bbf7d0;"><span>Total Net</span><span>₱7,248</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Scroll indicator -->
+              <div style="background:#f9fafb;border-top:1px solid #f0f0f0;padding:5px 14px;text-align:center;font-size:10px;color:#9ca3af;flex-shrink:0;letter-spacing:0.2px;">↓ scroll for more</div>
+
+              <!-- Sticky footer -->
+              <div style="padding:10px 13px;border-top:1px solid #e8e8e8;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#fff;color:#dc2626;border:1.5px solid #fecaca;display:flex;align-items:center;gap:4px;">🗑 Delete</div>
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;">Cancel</div>
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:flex;align-items:center;">🖨 Print</div>
+                <div style="height:30px;padding:0 16px;border-radius:7px;font-size:11px;font-weight:600;background:#1a56db;color:#fff;border:none;display:flex;align-items:center;margin-left:auto;">✓ Save Booking</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Green annotation badge: Service Fee -->
+        <div style="position:absolute;top:112px;left:-10px;z-index:200;pointer-events:none;transform:translateX(-100%);display:flex;align-items:center;gap:6px;">
+          <div style="background:#16a34a;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(22,163,74,0.4);">Service Fee added ✓</div>
+          <div style="font-size:18px;color:#16a34a;">→</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== RIGHT FRAME — Drawer bottom half (scrolled) ====== -->
+    <div style="flex-shrink:0;">
+      <div style="font-size:12px;color:#6b7280;font-weight:500;margin-bottom:8px;letter-spacing:0.2px;">② Scrolled down — adjustments, deposit, notes</div>
+      <div style="position:relative;display:inline-block;">
+        <!-- Browser chrome 620px -->
+        <div style="width:620px;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.18);border:1px solid #d0d0d0;">
+          <!-- Chrome bar -->
+          <div style="height:44px;background:#e8e8e8;display:flex;align-items:center;padding:0 16px;gap:12px;border-bottom:1px solid #d0d0d0;">
+            <div style="display:flex;gap:6px;">
+              <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#ffbd2e;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+            </div>
+            <div style="flex:1;height:26px;background:#fff;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#666;max-width:340px;margin:0 auto;">
+              <span style="margin-right:6px;color:#28c840;font-size:11px;">🔒</span>bloomstoneph.github.io/bloomstone
+            </div>
+          </div>
+          <!-- Browser body -->
+          <div style="display:flex;height:660px;background:#f7f7f5;position:relative;">
+            <!-- Mini sidebar (same) -->
+            <div style="width:155px;flex-shrink:0;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column;">
+              <div style="padding:14px 12px 12px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;">
+                <div style="width:26px;height:26px;background:#1a56db;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">B</div>
+                <div style="font-size:12px;font-weight:700;color:#1a1a1a;">Bloomstone</div>
+              </div>
+              <div style="padding:10px 8px;flex:1;">
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">📅 Today</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;color:#1a56db;background:#eff3fd;margin-bottom:2px;">📋 Operations</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">💰 Finance</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;margin-bottom:2px;">🏠 Properties</div>
+                <div style="padding:6px 10px;border-radius:7px;font-size:11px;color:#666;">📊 Reports</div>
+              </div>
+            </div>
+            <!-- Main (dimmed) -->
+            <div style="flex:1;overflow:hidden;position:relative;background:#f7f7f5;">
+              <div style="height:50px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 14px;gap:10px;">
+                <div style="font-size:14px;font-weight:700;color:#1a1a1a;flex:1;">Bookings</div>
+                <div style="height:28px;padding:0 10px;border-radius:6px;font-size:11px;font-weight:600;background:#f0f0f0;color:#444;border:1px solid #e0e0e0;display:flex;align-items:center;">Filter</div>
+              </div>
+              <div style="padding:12px;opacity:0.2;">
+                <div style="background:#fff;border-radius:8px;border:1px solid #e8e8e8;overflow:hidden;font-size:11px;">
+                  <div style="padding:7px 10px;background:#f7f7f5;border-bottom:1px solid #e8e8e8;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;font-size:9px;">Guest · Dates · Status</div>
+                  <div style="padding:8px 10px;border-bottom:1px solid #f0f0f0;"><strong>Michael Scott</strong> · May 22–25 · <span style="color:#1e40af;">Check-in</span></div>
+                  <div style="padding:8px 10px;"><strong>Dwight Schrute</strong> · May 26–30 · <span style="color:#065f46;">Confirmed</span></div>
+                </div>
+              </div>
+              <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.22);backdrop-filter:blur(1px);"></div>
+            </div>
+
+            <!-- DRAWER — scrolled down -->
+            <div style="position:absolute;top:0;right:0;width:345px;bottom:0;background:#fff;border-left:1px solid #e0e0e0;z-index:20;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,0.1);">
+              <!-- Header (same) -->
+              <div style="padding:12px 15px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <div style="flex:1;">
+                  <div style="font-size:15px;font-weight:700;color:#1a1a1a;">New Booking</div>
+                  <div style="font-size:10px;color:#9ca3af;margin-top:1px;">#BK-2026-089 · <span style="background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;">Draft</span></div>
+                </div>
+                <div style="width:27px;height:27px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#666;">✕</div>
+              </div>
+
+              <!-- Scroll-back indicator -->
+              <div style="background:#f9fafb;border-bottom:1px solid #f0f0f0;padding:5px 14px;text-align:center;font-size:10px;color:#9ca3af;flex-shrink:0;letter-spacing:0.2px;">↑ Guest details above</div>
+
+              <!-- Body — scrolled content -->
+              <div style="flex:1;overflow:hidden;padding:11px 13px;display:flex;flex-direction:column;gap:11px;">
+
+                <!-- ADJUSTMENTS -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">➕ Adjustments</div>
+                  <div style="background:#f9fafb;border:1.5px dashed #e5e7eb;border-radius:7px;padding:8px 10px;font-size:11px;color:#9ca3af;text-align:center;margin-bottom:6px;">No adjustments added</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <span style="height:23px;padding:0 7px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">＋ Extra Guest</span>
+                    <span style="height:23px;padding:0 7px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">＋ Early Check-in</span>
+                    <span style="height:23px;padding:0 7px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">＋ Late Check-out</span>
+                    <span style="height:23px;padding:0 7px;border-radius:12px;font-size:10px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:inline-flex;align-items:center;">＋ Custom</span>
+                  </div>
+                </div>
+
+                <!-- SECURITY DEPOSIT -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🔒 Security Deposit</div>
+                  <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Deposit Amount (₱)</div>
+                  <div style="height:31px;border:1.5px solid #e4e4e4;border-radius:7px;padding:0 10px;font-size:12px;font-family:Inter,sans-serif;color:#1a1a1a;background:#fff;display:flex;align-items:center;margin-bottom:6px;">₱1,000</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                    <div style="background:#f0fdf4;border:1.5px solid #22c55e;border-radius:7px;padding:7px 8px;">
+                      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                        <span style="width:13px;height:13px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;flex-shrink:0;">✓</span>
+                        <span style="font-size:10px;font-weight:700;color:#15803d;">Collected</span>
+                      </div>
+                      <div style="font-size:9px;color:#6b7280;">Received from guest</div>
+                    </div>
+                    <div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:7px;padding:7px 8px;">
+                      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                        <span style="width:13px;height:13px;border-radius:50%;border:1.5px solid #d1d5db;flex-shrink:0;"></span>
+                        <span style="font-size:10px;font-weight:700;color:#6b7280;">Refunded</span>
+                      </div>
+                      <div style="font-size:9px;color:#9ca3af;">Returned to guest</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AFTER CHECKOUT -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🏁 After Checkout</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px;">
+                    <div>
+                      <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Add-on Sales (₱)</div>
+                      <div style="height:30px;border:1.5px solid #e4e4e4;border-radius:6px;padding:0 8px;font-size:12px;color:#1a1a1a;background:#fff;display:flex;align-items:center;">0</div>
+                    </div>
+                    <div>
+                      <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Cleaning Fee (₱)</div>
+                      <div style="height:30px;border:1.5px solid #e4e4e4;border-radius:6px;padding:0 8px;font-size:12px;color:#1a1a1a;background:#fff;display:flex;align-items:center;">0</div>
+                    </div>
+                  </div>
+                  <div style="background:#f9fafb;border-radius:6px;padding:5px 8px;font-size:10px;color:#6b7280;display:flex;justify-content:space-between;">
+                    <span>Add-ons / Store total</span><span style="font-weight:700;color:#1a1a1a;">₱0</span>
+                  </div>
+                </div>
+
+                <!-- NOTES -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">📝 Notes</div>
+                  <div style="height:52px;border:1.5px solid #e4e4e4;border-radius:7px;padding:7px 10px;font-size:11px;font-family:Inter,sans-serif;color:#9ca3af;background:#fff;line-height:1.4;">Internal notes, special arrangements, preferences…</div>
+                </div>
+
+                <!-- HISTORY -->
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🕐 History</div>
+                  <div style="font-size:10px;color:#6b7280;margin-bottom:2px;">Created May 19, 2026 · admin</div>
+                  <div style="font-size:10px;color:#6b7280;">Updated May 19, 2026 · admin</div>
+                </div>
+              </div>
+
+              <!-- Sticky footer (same) -->
+              <div style="padding:10px 13px;border-top:1px solid #e8e8e8;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#fff;color:#dc2626;border:1.5px solid #fecaca;display:flex;align-items:center;gap:4px;">🗑 Delete</div>
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#f3f4f6;color:#6b7280;border:1.5px solid #e5e7eb;display:flex;align-items:center;">Cancel</div>
+                <div style="height:30px;padding:0 10px;border-radius:7px;font-size:11px;font-weight:600;background:#f3f4f6;color:#374151;border:1.5px solid #e5e7eb;display:flex;align-items:center;">🖨 Print</div>
+                <div style="height:30px;padding:0 16px;border-radius:7px;font-size:11px;font-weight:600;background:#1a56db;color:#fff;border:none;display:flex;align-items:center;margin-left:auto;">✓ Save Booking</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Green annotation badge: All sections present -->
+        <div style="position:absolute;top:112px;right:-10px;z-index:200;pointer-events:none;transform:translateX(100%);display:flex;align-items:center;gap:6px;">
+          <div style="font-size:18px;color:#16a34a;">←</div>
+          <div style="background:#16a34a;color:#fff;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 3px 10px rgba(22,163,74,0.4);">All sections present — drawer scrolls ✓</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ================================================================
+     SECTION 3 — MOBILE DATE PICKER
+================================================================ -->
+<div class="section">
+  <div class="section-label">📱 SECTION 3 — MOBILE — Improved Date Picker</div>
+
+  <div class="phone-section-layout">
+    <!-- Phone -->
+    <div class="phone-frame" style="flex-shrink:0;">
+      <div class="phone-screen">
+        <!-- Status bar -->
+        <div class="phone-status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">
+            <span>●●●</span>
+            <span>WiFi</span>
+            <span>▮▮▮</span>
+          </div>
+        </div>
+
+        <!-- Date Picker UI -->
+        <div class="phone-datepicker">
+          <!-- Header -->
+          <div class="phone-dp-header">
+            <div class="phone-dp-title">Select Check-in Date</div>
+            <div class="phone-close">✕</div>
+          </div>
+
+          <!-- Month nav -->
+          <div class="phone-month-nav">
+            <div class="month-nav-btn">‹</div>
+            <div class="month-nav-label">May 2026</div>
+            <div class="month-nav-btn">›</div>
+          </div>
+
+          <!-- Weekday headers -->
+          <div class="phone-weekday-row">
+            <div class="wday">Su</div>
+            <div class="wday">Mo</div>
+            <div class="wday">Tu</div>
+            <div class="wday">We</div>
+            <div class="wday">Th</div>
+            <div class="wday">Fr</div>
+            <div class="wday">Sa</div>
+          </div>
+
+          <!-- Calendar scroll area -->
+          <div class="phone-cal-scroll">
+            <!-- MAY 2026 -->
+            <div class="phone-month-grid">
+              <!-- Row 1: May 1–2 -->
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">1</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">2</div></div>
+              <!-- Row 2: 3–9 -->
+              <div class="pd-wrapper"><div class="pd-num past-num">3</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">4</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">5</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">6</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">7</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">8</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">9</div></div>
+              <!-- Row 3: 10–16 -->
+              <div class="pd-wrapper"><div class="pd-num past-num">10</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">11</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">12</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">13</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">14</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">15</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">16</div></div>
+              <!-- Row 4: 17–23 -->
+              <div class="pd-wrapper"><div class="pd-num past-num">17</div></div>
+              <div class="pd-wrapper"><div class="pd-num past-num">18</div></div>
+              <div class="pd-wrapper"><div class="pd-num today-num">19</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">20</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">21</div></div>
+              <!-- 22 = check-in (selected start) -->
+              <div class="pd-wrapper">
+                <div class="pd-bg rng-start-bg"></div>
+                <div class="pd-num sel-num">22</div>
+              </div>
+              <!-- 23 = range -->
+              <div class="pd-wrapper">
+                <div class="pd-bg rng-bg"></div>
+                <div class="pd-num rng-num">23</div>
+              </div>
+              <!-- Row 5: 24–30 -->
+              <!-- 24 = range -->
+              <div class="pd-wrapper">
+                <div class="pd-bg rng-bg"></div>
+                <div class="pd-num rng-num">24</div>
+              </div>
+              <!-- 25 = check-out (selected end) -->
+              <div class="pd-wrapper">
+                <div class="pd-bg rng-end-bg"></div>
+                <div class="pd-num sel-num">25</div>
+              </div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">26</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">27</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">28</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">29</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">30</div></div>
+              <!-- Row 6: 31 -->
+              <div class="pd-wrapper"><div class="pd-num normal-num">31</div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+            </div>
+
+            <!-- JUNE 2026 label -->
+            <div class="phone-month-label" style="font-size:14px;font-weight:700;color:#1a1a1a;text-align:left;padding:4px 4px 8px;">June 2026</div>
+            <!-- June weekdays again -->
+            <div class="phone-weekday-row" style="padding:0;">
+              <div class="wday">Su</div>
+              <div class="wday">Mo</div>
+              <div class="wday">Tu</div>
+              <div class="wday">We</div>
+              <div class="wday">Th</div>
+              <div class="wday">Fr</div>
+              <div class="wday">Sa</div>
+            </div>
+            <div class="phone-month-grid" style="margin-bottom:8px;">
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">1</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">2</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">3</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">4</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">5</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">6</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">7</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">8</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">9</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">10</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">11</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">12</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">13</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">14</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">15</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">16</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">17</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">18</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">19</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">20</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">21</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">22</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">23</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">24</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">25</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">26</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">27</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">28</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">29</div></div>
+              <div class="pd-wrapper"><div class="pd-num normal-num">30</div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+              <div class="pd-wrapper"><div class="pd-num empty-d"></div></div>
+            </div>
+          </div>
+
+          <!-- Sticky footer -->
+          <div class="phone-dp-footer">
+            <div class="footer-dates-row">
+              <div class="footer-date-chip">
+                <div class="chip-label">Check-in</div>
+                <div class="chip-value">May 22</div>
+              </div>
+              <div class="nights-pill-center">3 nights</div>
+              <div class="footer-date-chip" style="text-align:right;">
+                <div class="chip-label">Check-out</div>
+                <div class="chip-value">May 25</div>
+              </div>
+            </div>
+            <div class="confirm-btn">Confirm Dates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotations beside phone -->
+    <div class="phone-annotations-col">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">Mobile improvements</div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>44px tap targets</strong> Each day cell is 44×44px (vs ~36px before), matching Apple HIG minimum touch target guidelines. Much easier to hit on small screens.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>Past dates visible and selectable</strong> Shown in muted gray but still tappable — managers often need to enter past bookings or correct errors.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>Live "3 nights" counter</strong> Shown in the sticky footer as soon as both dates are selected. No mental math required.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>Continuous scroll months</strong> June appears below May in the same scroll view — no tab switching or modal navigation needed.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>Range highlight</strong> Blue tint fills cells 23–24 between the two selected endpoints, giving clear visual feedback of the stay duration.</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-dot green"></div>
+        <div class="ann-text"><strong>Today outlined</strong> Day 19 has a blue ring outline (not filled) so it's distinguishable from a selected date at a glance.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     SECTION 4 — DESKTOP INLINE DATE PICKER CLOSE-UP
+================================================================ -->
+<div class="section">
+  <div class="section-label">💻 SECTION 4 — DESKTOP — Inline Date Picker (inside drawer)</div>
+
+  <div class="section-frame">
+    <div style="flex-shrink:0;">
+      <div class="desktop-dp-frame">
+        <div class="dp-section-label">Date Range</div>
+
+        <!-- Trigger row (shows selected dates) -->
+        <div class="date-trigger-row">
+          <div class="date-trigger-btn has-date">
+            <span class="date-trigger-icon">📅</span>
+            <span>Check-in · May 22</span>
+          </div>
+          <div class="date-trigger-arrow">→</div>
+          <div class="date-trigger-btn has-date">
+            <span class="date-trigger-icon">🏁</span>
+            <span>Check-out · May 25</span>
+          </div>
+        </div>
+
+        <!-- Inline 2-month calendar -->
+        <div class="desktop-inline-cal">
+          <!-- Calendar header with nav -->
+          <div class="desktop-cal-header">
+            <div class="desktop-cal-nav-btn">‹</div>
+            <div class="desktop-cal-months">
+              <div class="desktop-cal-month-title">May 2026</div>
+              <div class="desktop-cal-month-title" style="color:#9ca3af;">June 2026</div>
+            </div>
+            <div class="desktop-cal-nav-btn">›</div>
+          </div>
+
+          <!-- Two month body -->
+          <div class="desktop-cal-body">
+            <!-- MAY -->
+            <div class="desktop-month-section">
+              <!-- Weekday headers -->
+              <div class="desktop-month-header">
+                <div class="dw">Su</div><div class="dw">Mo</div><div class="dw">Tu</div><div class="dw">We</div><div class="dw">Th</div><div class="dw">Fr</div><div class="dw">Sa</div>
+              </div>
+              <div class="desktop-day-grid">
+                <!-- Row 1 -->
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">1</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">2</div></div>
+                <!-- Row 2 -->
+                <div class="dd-wrapper"><div class="dd-num past-d">3</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">4</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">5</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">6</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">7</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">8</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">9</div></div>
+                <!-- Row 3 -->
+                <div class="dd-wrapper"><div class="dd-num past-d">10</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">11</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">12</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">13</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">14</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">15</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">16</div></div>
+                <!-- Row 4 -->
+                <div class="dd-wrapper"><div class="dd-num past-d">17</div></div>
+                <div class="dd-wrapper"><div class="dd-num past-d">18</div></div>
+                <div class="dd-wrapper"><div class="dd-num today-d">19</div></div>
+                <div class="dd-wrapper"><div class="dd-num">20</div></div>
+                <div class="dd-wrapper"><div class="dd-num">21</div></div>
+                <!-- 22 = start -->
+                <div class="dd-wrapper">
+                  <div class="dd-bg rng-start-bg"></div>
+                  <div class="dd-num sel-d">22</div>
+                </div>
+                <!-- 23 range -->
+                <div class="dd-wrapper">
+                  <div class="dd-bg rng-bg"></div>
+                  <div class="dd-num rng-d">23</div>
+                </div>
+                <!-- Row 5 -->
+                <!-- 24 range -->
+                <div class="dd-wrapper">
+                  <div class="dd-bg rng-bg"></div>
+                  <div class="dd-num rng-d">24</div>
+                </div>
+                <!-- 25 = end -->
+                <div class="dd-wrapper">
+                  <div class="dd-bg rng-end-bg"></div>
+                  <div class="dd-num sel-d">25</div>
+                </div>
+                <div class="dd-wrapper"><div class="dd-num">26</div></div>
+                <div class="dd-wrapper"><div class="dd-num">27</div></div>
+                <div class="dd-wrapper"><div class="dd-num">28</div></div>
+                <div class="dd-wrapper"><div class="dd-num">29</div></div>
+                <div class="dd-wrapper"><div class="dd-num">30</div></div>
+                <!-- Row 6 -->
+                <div class="dd-wrapper"><div class="dd-num">31</div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="desktop-cal-divider"></div>
+
+            <!-- JUNE -->
+            <div class="desktop-month-section">
+              <div class="desktop-month-header">
+                <div class="dw">Su</div><div class="dw">Mo</div><div class="dw">Tu</div><div class="dw">We</div><div class="dw">Th</div><div class="dw">Fr</div><div class="dw">Sa</div>
+              </div>
+              <div class="desktop-day-grid">
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num">1</div></div>
+                <div class="dd-wrapper"><div class="dd-num">2</div></div>
+                <div class="dd-wrapper"><div class="dd-num">3</div></div>
+                <div class="dd-wrapper"><div class="dd-num">4</div></div>
+                <div class="dd-wrapper"><div class="dd-num">5</div></div>
+                <div class="dd-wrapper"><div class="dd-num">6</div></div>
+                <div class="dd-wrapper"><div class="dd-num">7</div></div>
+                <div class="dd-wrapper"><div class="dd-num">8</div></div>
+                <div class="dd-wrapper"><div class="dd-num">9</div></div>
+                <div class="dd-wrapper"><div class="dd-num">10</div></div>
+                <div class="dd-wrapper"><div class="dd-num">11</div></div>
+                <div class="dd-wrapper"><div class="dd-num">12</div></div>
+                <div class="dd-wrapper"><div class="dd-num">13</div></div>
+                <div class="dd-wrapper"><div class="dd-num">14</div></div>
+                <div class="dd-wrapper"><div class="dd-num">15</div></div>
+                <div class="dd-wrapper"><div class="dd-num">16</div></div>
+                <div class="dd-wrapper"><div class="dd-num">17</div></div>
+                <div class="dd-wrapper"><div class="dd-num">18</div></div>
+                <div class="dd-wrapper"><div class="dd-num">19</div></div>
+                <div class="dd-wrapper"><div class="dd-num">20</div></div>
+                <div class="dd-wrapper"><div class="dd-num">21</div></div>
+                <div class="dd-wrapper"><div class="dd-num">22</div></div>
+                <div class="dd-wrapper"><div class="dd-num">23</div></div>
+                <div class="dd-wrapper"><div class="dd-num">24</div></div>
+                <div class="dd-wrapper"><div class="dd-num">25</div></div>
+                <div class="dd-wrapper"><div class="dd-num">26</div></div>
+                <div class="dd-wrapper"><div class="dd-num">27</div></div>
+                <div class="dd-wrapper"><div class="dd-num">28</div></div>
+                <div class="dd-wrapper"><div class="dd-num">29</div></div>
+                <div class="dd-wrapper"><div class="dd-num">30</div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+                <div class="dd-wrapper"><div class="dd-num empty-d"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer row -->
+          <div class="cal-footer-row">
+            <div class="cal-footer-info">
+              <span class="check-icon">✓</span>
+              <span class="range-text">May 22 → May 25</span>
+              <span style="color:#6b7280;">·</span>
+              <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">3 nights</span>
+              <span class="sub-text">· Click any date to change</span>
+            </div>
+            <div class="cal-clear-btn">✕ Clear</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotation column -->
+    <div class="section-frame-annotations">
+      <div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">Desktop date picker improvements</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="ann-item">
+          <div class="ann-dot green"></div>
+          <div class="ann-text"><strong>Always visible — no popup</strong> The calendar is embedded inline in the drawer's right column. Selecting dates never covers form fields.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot green"></div>
+          <div class="ann-text"><strong>38×34px cells (desktop)</strong> vs the current ~18–20px. Much easier to click precise dates without accidentally selecting a neighbor.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot green"></div>
+          <div class="ann-text"><strong>Range highlighted clearly</strong> Blue gradient fills start/end cells, and a solid blue tint fills the range between — unambiguous visual feedback.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot green"></div>
+          <div class="ann-text"><strong>Footer confirmation row</strong> "May 22 → May 25 · 3 nights · Click any date to change" — always visible, no guessing what was selected.</div>
+        </div>
+        <div class="ann-item">
+          <div class="ann-dot green"></div>
+          <div class="ann-text"><strong>Clear button</strong> One-click reset of both dates, shown at the bottom right of the calendar, not buried in a menu.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="border-top:1px solid #e0e0e0;padding:24px 0;margin-top:16px;color:#9ca3af;font-size:12px;display:flex;gap:24px;align-items:center;">
+  <span>Bloomstone PMS — Responsive Redesign Mockup</span>
+  <span>·</span>
+  <span>Option A Palette: bg #f7f7f5 · surface #fff · accent #1a56db · Inter font</span>
+  <span>·</span>
+  <span>Visual mockup only — no JavaScript logic</span>
+</div>
+
+</body>
+</html>
