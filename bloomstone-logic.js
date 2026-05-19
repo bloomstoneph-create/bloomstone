@@ -407,16 +407,18 @@ function updateDateRangeDisplay(){
   const co=document.getElementById('f-checkout')?.value||'';
   const el=document.getElementById('dateRangeDisplay');if(!el)return;
   const bar=document.getElementById('drawerAccentBar');
+  const propId=document.getElementById('f-property')?.value||'';
   const platName=document.getElementById('f-platform')?.value||'';
-  if(bar)bar.style.background=platName?platformColor(platName):'var(--border)';
+  // Option B: accent bar uses property color (identity), falls back to platform
+  const accentColor=propId?propertyColor(propId):(platName?platformColor(platName):'#64748B');
+  if(bar)bar.style.background=accentColor;
   if(!ci||!co){el.style.display='none';return;}
   const{range,nightsText}=fmtDateRange(ci,co);
   const rangeEl=document.getElementById('dateRangeText');
   const nightsEl=document.getElementById('dateNightsText');
   if(rangeEl)rangeEl.textContent=range;
-  if(nightsEl){nightsEl.textContent=nightsText;nightsEl.style.cssText='font-size:16px;font-weight:900;color:var(--accent);margin-left:10px';}
-  el.style.borderLeftColor=platName?platformColor(platName):'var(--accent)';
-  el.style.display='flex';el.style.alignItems='baseline';el.style.gap='4px';
+  if(nightsEl)nightsEl.textContent=nightsText;
+  el.style.display='flex';el.style.alignItems='baseline';el.style.justifyContent='space-between';el.style.gap='8px';
 }
 function updateDrawerProfile(){
   const el=document.getElementById('drawerGuestProfile');if(!el)return;
@@ -1023,7 +1025,7 @@ function renderToday(){
     <div class="stat-card"><div class="stat-label">Pending Deposits</div><div class="stat-value">${pendingDep.length}</div></div>`;
   const sec=(title,items,icon,fn)=>{
     if(!items.length)return`<div class="today-card"><div class="today-card-header"><div class="today-card-title">${icon} ${title}</div><span class="badge badge-neutral">0</span></div><div class="empty" style="padding:20px"><div class="empty-text">None today</div></div></div>`;
-    return`<div class="today-card"><div class="today-card-header"><div class="today-card-title">${icon} ${title}</div><span class="badge badge-green">${items.length}</span></div>${items.map(b=>`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:4px;height:36px;border-radius:2px;background:${platformColor(b.platform)};flex-shrink:0"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div><div class="today-item-meta">${esc(propName(b.property))}</div></div>${fn?fn(b):''}</div>`).join('')}</div>`;
+    return`<div class="today-card"><div class="today-card-header"><div class="today-card-title">${icon} ${title}</div><span class="badge badge-green">${items.length}</span></div>${items.map(b=>`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:8px;border-radius:3px;background:${propertyColor(b.property)};flex-shrink:0;align-self:stretch;min-height:36px"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div><div class="today-item-meta" style="color:${propertyColor(b.property)};font-weight:600">${esc(propName(b.property))}</div></div>${fn?fn(b):''}</div>`).join('')}</div>`;
   };
   document.getElementById('todaySections').innerHTML=
     sec('Check-ins',checkIns,'\u2192',b=>`<span class="badge badge-blue">${b.guestCount||1} guest${b.guestCount!=1?'s':''}</span>`)+
@@ -1033,7 +1035,7 @@ function renderToday(){
     <div class="today-card-header"><div class="today-card-title">\u25f7 Today's Timeline</div></div>
     ${tl.length?tl.map(b=>{
       const isIn=b.checkin===today,isOut=b.checkout===today;
-      return`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:4px;height:36px;border-radius:2px;background:${platformColor(b.platform)};flex-shrink:0"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}</div><div class="today-item-meta">${esc(propName(b.property))} \u00b7 ${isIn?'Check-in':isOut?'Check-out':'Active stay'}</div></div><div style="display:flex;gap:6px;align-items:center">${statusBadgeHtml(b.status)}<span class="badge badge-neutral">${tasksDone(b)}/${tasksTotal()} tasks</span></div></div>`;
+      return`<div class="today-item" onclick="openBookingDrawer('${b.id}')"><div style="width:8px;border-radius:3px;background:${propertyColor(b.property)};flex-shrink:0;align-self:stretch;min-height:36px"></div><div class="today-item-info"><div class="today-item-name">${esc(b.guest)}</div><div class="today-item-meta"><span style="color:${propertyColor(b.property)};font-weight:600">${esc(propName(b.property))}</span> \u00b7 ${isIn?'Check-in':isOut?'Check-out':'Active stay'}</div></div><div style="display:flex;gap:6px;align-items:center">${statusBadgeHtml(b.status)}<span class="badge badge-neutral">${tasksDone(b)}/${tasksTotal()} tasks</span></div></div>`;
     }).join(''):`<div class="empty" style="padding:20px"><div class="empty-text">No activity today</div></div>`}`;
 }
 
@@ -1069,9 +1071,9 @@ function renderBookings(){
     if(cards){
       cards.style.display='block';
       if(!list.length){cards.innerHTML=`<div class="empty"><div class="empty-icon">\ud83d\udccb</div><div class="empty-text">No bookings match filters</div></div>`;return;}
-      cards.innerHTML=list.map(b=>{const t=calcTotals(b);const c=platformColor(b.platform);
-        return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px;cursor:pointer" onclick="openBookingDrawer('${b.id}')">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:4px;height:36px;border-radius:2px;background:${c};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div><div style="font-size:12px;color:var(--text-3)">${esc(propName(b.property))}</div></div>${statusBadgeHtml(b.status)}</div>
+      cards.innerHTML=list.map(b=>{const t=calcTotals(b);const pc=propertyColor(b.property);
+        return`<div style="background:var(--surface);border:1px solid var(--border);border-left:8px solid ${pc};border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px;cursor:pointer;overflow:hidden" onclick="openBookingDrawer('${b.id}')">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">${esc(b.guest)}${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:6px;font-size:9px">REPEAT</span>':''}</div><div style="font-size:12px;color:${pc};font-weight:600">${esc(propName(b.property))}</div></div>${statusBadgeHtml(b.status)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">${platformPillHtml(b.platform)}<span style="font-size:12px;color:var(--text-3)">${fmtDate(b.checkin)} \u2192 ${fmtDate(b.checkout)}</span><span style="font-size:12px;font-weight:700;margin-left:auto">${fmtMoney(t.netRevenue)}</span></div>
         </div>`;}).join('');
     }
@@ -1082,7 +1084,7 @@ function renderBookings(){
   const tbody=document.getElementById('bookingsTbody');
   if(!list.length){tbody.innerHTML=`<tr><td colspan="21"><div class="empty"><div class="empty-text">No bookings match filters</div></div></td></tr>`;return;}
   tbody.innerHTML=list.map(b=>{
-    const t=calcTotals(b);const c=platformColor(b.platform);
+    const t=calcTotals(b);const pc=propertyColor(b.property);
     const td=tasksDone(b),tt=tasksTotal();
     const conflict=hasConflict(b);
     const svcFee=b.serviceFee||0;
@@ -1092,13 +1094,13 @@ function renderBookings(){
     const extraG=b.extraGuests??t.extraG;
     const extraFeeAmt=b.extraGuestFee??t.extraFee;
     return`<tr${conflict?' style="background:var(--orange-bg)"':''} onclick="openBookingDrawer('${b.id}')">
-      <td class="col-stripe"><div class="col-stripe-bar" style="background:${c}"></div></td>
+      <td class="col-stripe"><div class="col-stripe-bar" style="background:${pc}"></div></td>
       <td style="white-space:nowrap">${fmtDate(b.checkin)}</td>
       <td style="white-space:nowrap">${fmtDate(b.checkout)}</td>
       <td><strong>${t.nights}</strong></td>
       <td>${platformPillHtml(b.platform)}</td>
       <td style="white-space:nowrap"><strong>${esc(b.guest)}</strong>${isRepeat(b.guest)?'<span class="badge badge-purple" style="margin-left:4px;font-size:9px">REPEAT</span>':''}</td>
-      <td style="color:var(--text-2);white-space:nowrap">${esc(propName(b.property))}</td>
+      <td style="color:${pc};font-weight:600;white-space:nowrap">${esc(propName(b.property))}</td>
       <td>${fmtMoney(b.rate)}</td>
       <td style="color:var(--purple);font-weight:700">${b.promo?`−${fmtMoney(b.promo)}`:'—'}</td>
       <td>${fmtMoney(t.bkFee)}</td>
@@ -1121,10 +1123,12 @@ function renderBookings(){
 // BOOKING DRAWER
 // ============================================================
 function updateDrawerSummary(){
-  // Accent bar colour from platform
+  // Option B: Accent bar uses property color (identity)
+  const propId=document.getElementById('f-property')?.value||'';
   const platName=document.getElementById('f-platform')?.value||'';
   const bar=document.getElementById('drawerAccentBar');
-  if(bar)bar.style.background=platName?platformColor(platName):'var(--border)';
+  const accentColor=propId?propertyColor(propId):(platName?platformColor(platName):'#64748B');
+  if(bar)bar.style.background=accentColor;
   // Status badge in header
   const badgeEl=document.getElementById('drawerStatusBadge');
   if(badgeEl){
@@ -1225,8 +1229,8 @@ function openBookingDrawer(id=null){
     document.getElementById('drawerHistory').innerHTML=recent.length?
       '<div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:6px">Recent bookings:</div>'+
       recent.map(b=>`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;cursor:pointer" onclick="closeDrawer();setTimeout(()=>openBookingDrawer('${b.id}'),150)">
-        <div style="width:3px;height:22px;border-radius:2px;background:${platformColor(b.platform)};flex-shrink:0"></div>
-        <div style="flex:1;font-size:11px"><strong>${esc(b.guest)}</strong> · ${esc(propName(b.property))} · ${fmtDate(b.checkin)}</div>
+        <div style="width:5px;height:22px;border-radius:2px;background:${propertyColor(b.property)};flex-shrink:0"></div>
+        <div style="flex:1;font-size:11px"><strong>${esc(b.guest)}</strong> · <span style="color:${propertyColor(b.property)};font-weight:600">${esc(propName(b.property))}</span> · ${fmtDate(b.checkin)}</div>
         ${statusBadgeHtml(b.status)}</div>`).join('')
       :'<div style="color:var(--text-3);font-size:12px">New booking — no history yet</div>';
     renderAdjustments();
@@ -1391,6 +1395,11 @@ function onPropertyChange(){
       if(cityIcon)cityIcon.innerHTML=propIconHtml(prop,16);
       cityText.textContent=prop.city||'';
       badge.style.display=prop.city?'inline-flex':'none';
+      // Option B: tint badge with property color
+      const pc=propertyColor(pid);
+      badge.style.background=pc+'18';
+      badge.style.borderColor=pc+'40';
+      badge.style.color=pc;
     }
     const maxExtra=prop.maxGuests-prop.baseGuests;
     const eg=document.getElementById('f-extraguests');

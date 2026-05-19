@@ -41,7 +41,16 @@
   --shadow-lg:0 8px 24px rgba(0,0,0,.1);
   --radius-sm:6px;--radius:10px;--radius-lg:16px;--radius-xl:22px;
   --sidebar-w:240px;--sidebar-collapsed:60px;
-  --drawer-w:480px;--topbar-h:56px;
+  --drawer-w:520px;--topbar-h:56px;
+  /* Option B: Dark navy sidebar */
+  --sidebar-bg:#1E293B;--sidebar-text:#94A3B8;--sidebar-text-active:#F1F5F9;
+  --sidebar-hover:rgba(255,255,255,.06);--sidebar-active:rgba(255,255,255,.1);
+  --sidebar-border:rgba(255,255,255,.08);
+  /* Option B: Amber CTA */
+  --amber:#F59E0B;--amber-hover:#D97706;--amber-bg:#FEF3C7;
+  /* Option B: Property palette (index-based) */
+  --prop-c1:#3B82F6;--prop-c2:#10B981;--prop-c3:#8B5CF6;
+  --prop-c4:#F59E0B;--prop-c5:#EF4444;--prop-c6:#06B6D4;
   --transition:.15s ease;
   --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
 }
@@ -130,6 +139,27 @@ a{color:inherit;text-decoration:none}
 .sidebar.collapsed .theme-toggle span{display:none}
 
 /* ============================================================
+   OPTION B: DARK NAVY SIDEBAR OVERRIDES
+============================================================ */
+.sidebar{background:var(--sidebar-bg)!important;border-right:none!important;box-shadow:2px 0 16px rgba(0,0,0,.2)}
+.sidebar-top{border-bottom:1px solid var(--sidebar-border)!important;background:transparent!important}
+.sidebar-logo{color:#F1F5F9!important}
+.sidebar-logo span{color:#475569!important}
+.sidebar-collapse-btn{border-color:var(--sidebar-border)!important;color:var(--sidebar-text)!important;background:transparent!important}
+.sidebar-collapse-btn:hover{background:var(--sidebar-hover)!important;color:#F1F5F9!important}
+.ws-btn{color:var(--sidebar-text)!important}
+.ws-btn:hover{background:var(--sidebar-hover)!important;color:#F1F5F9!important}
+.ws-btn.active{background:var(--sidebar-active)!important;color:#F1F5F9!important;font-weight:700!important}
+.sub-btn{color:rgba(148,163,184,.55)!important}
+.sub-btn:hover{color:#F1F5F9!important;background:var(--sidebar-hover)!important}
+.sub-btn.active{color:#F1F5F9!important;background:var(--sidebar-hover)!important;font-weight:600!important}
+.sidebar-bottom{border-top:1px solid var(--sidebar-border)!important;background:transparent!important}
+.theme-toggle{color:var(--sidebar-text)!important}
+.theme-toggle:hover{background:var(--sidebar-hover)!important;color:#F1F5F9!important}
+#pwaInstallBtn{color:#93C5FD!important}
+#pwaInstallBtn:hover{background:var(--sidebar-hover)!important}
+
+/* ============================================================
    MAIN CONTENT
 ============================================================ */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -216,8 +246,8 @@ a{color:inherit;text-decoration:none}
 .data-table tbody tr{cursor:pointer;transition:background var(--transition)}
 .data-table tbody tr:hover{background:var(--surface-2)}
 .data-table tbody tr:last-child td{border-bottom:none}
-.col-stripe{width:4px;padding:0!important}
-.col-stripe-bar{display:block;width:4px;height:100%;min-height:20px;border-radius:2px}
+.col-stripe{width:8px;padding:0!important}
+.col-stripe-bar{display:block;width:8px;height:100%;min-height:20px;border-radius:3px}
 
 /* ============================================================
    FORM ELEMENTS
@@ -322,6 +352,36 @@ a{color:inherit;text-decoration:none}
 }
 .form-sec:first-child{margin-top:-18px;border-top:none}
 .form-sec::after{display:none}
+
+/* ============================================================
+   OPTION B: DRAWER & BUTTON ENHANCEMENTS
+============================================================ */
+/* Amber CTA button */
+.btn-amber{background:var(--amber);color:#fff;border:none}
+.btn-amber:hover{background:var(--amber-hover);opacity:1}
+/* Drawer section card headers — amber left accent */
+.drawer-card-hdr{border-left:3px solid var(--amber);padding-left:11px!important;color:var(--text)!important}
+/* Drawer accent bar uses property color (set via JS) */
+/* FAB button — amber */
+.fab{background:var(--amber)!important;color:#fff!important}
+.fab:hover{background:var(--amber-hover)!important}
+/* Stat card top border accent */
+.stat-card{border-top:3px solid transparent}
+/* Today view: colorful stats */
+.stat-card:nth-child(1){border-top-color:var(--prop-c1)}
+.stat-card:nth-child(2){border-top-color:var(--prop-c5)}
+.stat-card:nth-child(3){border-top-color:var(--prop-c2)}
+.stat-card:nth-child(4){border-top-color:var(--prop-c4)}
+/* Dark date range banner */
+.date-range-banner{
+  background:#1E293B;border-radius:var(--radius);
+  padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;
+  justify-content:space-between;gap:8px;
+}
+.date-range-banner .dr-text{font-size:15px;font-weight:800;color:#F1F5F9}
+.date-range-banner .dr-nights{font-size:14px;font-weight:900;color:var(--amber)}
+/* Mobile booking card — property color band */
+.bk-card-band{width:8px;border-radius:3px;flex-shrink:0;align-self:stretch}
 
 /* ============================================================
    TRIP-STYLE DATE PICKER
@@ -1329,7 +1389,7 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
       </button>
       <!-- Add Booking (centre, prominent) -->
       <button class="mobile-nav-btn mobile-nav-add" onclick="openBookingDrawer()">
-        <span class="nav-icon" style="width:44px;height:44px;background:var(--text);color:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 12px rgba(0,0,0,.25)">＋</span>
+        <span class="nav-icon" style="width:44px;height:44px;background:var(--amber);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 12px rgba(245,158,11,.4)">＋</span>
         Booking
       </button>
       <!-- Daily Brief -->
@@ -1455,9 +1515,9 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
       </div>
       <input type="hidden" id="f-nights"/>
 
-      <div id="dateRangeDisplay" style="display:none;padding:10px 14px;border-radius:var(--radius);border-left:3px solid var(--accent);background:var(--surface-3);margin-bottom:12px">
-        <span id="dateRangeText" style="font-size:15px;font-weight:800;color:var(--text)"></span>
-        <span id="dateNightsText" style="font-size:14px;font-weight:900;color:var(--accent)"></span>
+      <div id="dateRangeDisplay" class="date-range-banner" style="display:none">
+        <span id="dateRangeText" class="dr-text"></span>
+        <span id="dateNightsText" class="dr-nights"></span>
       </div>
 
       <div class="field-row" style="margin-bottom:0">
@@ -1697,7 +1757,7 @@ canvas.chart{width:100%!important;height:220px!important;display:block}
     <button class="btn btn-danger btn-sm" id="drawerDeleteBtn" style="display:none">⌦ Delete</button>
     <button class="btn btn-secondary" id="drawerCancelBtn">Cancel</button>
     <button class="btn btn-ghost btn-sm" onclick="printBooking()" title="Print / Save PDF" style="font-size:13px;padding:6px 12px">🖨 Print</button>
-    <button class="btn btn-primary" id="drawerSaveBtn">✓ Save Booking</button>
+    <button class="btn btn-amber" id="drawerSaveBtn">✓ Save Booking</button>
   </div>
 </aside>
 
